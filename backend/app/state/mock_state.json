@@ -1,0 +1,18 @@
+{
+  "user_id": "u1",
+  "target_role": "swe_backend",
+  "week_number": 1,
+  "available_hours": 10,
+  "completed_tasks_last_week": 3,
+  "ignored_tasks_last_week": 1,
+  "confidence": 6,
+  "interview_score": 55,
+  "resume_score": 60,
+  "networking_score": 40,
+  "portfolio_score": 50,
+  "streak_count": 2,
+  "skill_progress": {
+    "completed_skills": ["python"],
+    "next_skill": "flask"
+  }
+}
