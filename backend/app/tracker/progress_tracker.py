@@ -2,6 +2,7 @@ import json
 from app.plan.plan_store import load_plan, save_plan
 from app.state.state_builder import get_current_state, MOCK_STATE_PATH
 from app.tracker.reward import compute_reward
+from app.tracker.reward_log import append_reward
 
 
 def mark_task(task_id: str, new_status: str) -> dict:
@@ -35,4 +36,6 @@ def mark_task(task_id: str, new_status: str) -> dict:
     with open(MOCK_STATE_PATH, "w") as f:
         json.dump(state_data, f, indent=2)
 
-    return {"task_id": task_id, "status": new_status, "reward": reward}
+    result = {"task_id": task_id, "status": new_status, "reward": reward}
+    append_reward(result)
+    return result

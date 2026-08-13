@@ -5,6 +5,7 @@ from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
+from app.tracker.reward_log import get_log
 
 app = FastAPI()
 
@@ -70,3 +71,7 @@ def ignore_task(task_id: str):
         return mark_task(task_id, "ignored")
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@app.get("/rewards")
+def read_rewards():
+    return get_log()    
