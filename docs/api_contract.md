@@ -29,3 +29,11 @@ streak_count, skill_progress { completed_skills[], next_skill }
     "next_skill": "flask"
   }
 }
+## weekly_plan — output of GET /plan (and POST /generate-plan)
+```json
+{
+  "week_number": 1,
+  "tasks": [
+    { "id": "t1", "agent": "skill_building", "title": "Complete a tutorial/module on flask", "hours": 2, "status": "pending" }
+  ]
+}
