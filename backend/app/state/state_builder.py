@@ -15,3 +15,15 @@ def get_current_state() -> StateVector:
     with open(MOCK_STATE_PATH, "r") as f:
         data = json.load(f)
     return StateVector(**data)
+def update_state_fields(updates: dict) -> None:
+    """Merges given fields into mock_state.json. Used by leaf modules
+    (resume analyzer, portfolio scanner) to write real analysis results
+    back into shared state, without those modules needing to know
+    anything about the file format."""
+    with open(MOCK_STATE_PATH, "r") as f:
+        data = json.load(f)
+
+    data.update(updates)
+
+    with open(MOCK_STATE_PATH, "w") as f:
+        json.dump(data, f, indent=2)
