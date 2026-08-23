@@ -6,9 +6,16 @@ from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def _get_bids(state):
     return [
@@ -74,4 +81,4 @@ def ignore_task(task_id: str):
 
 @app.get("/rewards")
 def read_rewards():
-    return get_log()    
+    return get_log()
