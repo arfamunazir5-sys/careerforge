@@ -1,0 +1,5 @@
+{
+  "swe_backend": ["python", "flask", "rest_apis", "databases", "docker", "deployment"],
+  "data_analyst": ["python", "sql", "statistics", "pandas", "power_bi", "storytelling"],
+  "frontend_dev": ["html_css", "javascript", "react", "state_management", "responsive_design", "deployment"]
+}
