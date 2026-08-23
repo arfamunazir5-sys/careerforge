@@ -77,19 +77,8 @@ def complete_task(task_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@app.post("/tasks/{task_id}/ignore")
-def ignore_task(task_id: str):
-    try:
-        return mark_task(task_id, "ignored")
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
 @app.get("/rewards")
 def read_rewards():
-<<<<<<< HEAD
-    return get_log()
-=======
     return get_log()
 
 
@@ -122,4 +111,3 @@ def read_skill_progress():
         "next_skill": next_skill,
         "full_chain": get_full_chain(state.target_role),
     }
->>>>>>> 10ad57e79358ebf6c7d29fedabd9322e6763bc87
