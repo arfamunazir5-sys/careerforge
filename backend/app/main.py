@@ -6,6 +6,8 @@ from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
+from app.insights.career_health import compute_career_health
+from app.insights.explainability import generate_explanations
 
 from fastapi.middleware.cors import CORSMiddleware
 from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
@@ -80,6 +82,18 @@ def complete_task(task_id: str):
 @app.get("/rewards")
 def read_rewards():
     return get_log()
+@app.get("/career-health")
+def read_career_health():
+    state = get_current_state()
+    return compute_career_health(state)
+
+
+@app.get("/explain")
+def read_explanation():
+    state = get_current_state()
+    bids = _get_bids(state)
+    allocation = allocate(state, bids)
+    return generate_explanations(state, bids, allocation)
 
 
 @app.post("/analyze-resume")
