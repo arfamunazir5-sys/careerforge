@@ -71,3 +71,27 @@ Automatically updates portfolio_score in the shared state. Numbers vary with liv
 }
 ```
 Reads live from state — always respects prerequisite order.
+## career_health — output of GET /career-health
+```json
+{
+  "overall_score": 51,
+  "modules": [
+    { "name": "Resume", "score": 60 },
+    { "name": "Portfolio", "score": 50 },
+    { "name": "Networking", "score": 40 },
+    { "name": "Interview", "score": 55 }
+  ]
+}
+```
+overall_score is the average of the 4 module scores from the shared state.
+
+## explainability — output of GET /explain
+```json
+{
+  "week_number": 1,
+  "items": [
+    { "agent": "skill_building", "hours": 4, "explanation": "Skill Building received 4h this week. Resume score is below target..." }
+  ]
+}
+```
+Built from each agent's existing bid reason (Phase 3) plus how its request compared to what the coordinator allocated it.
