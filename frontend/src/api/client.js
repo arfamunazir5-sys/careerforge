@@ -30,4 +30,6 @@ export const api = {
   getPlan: () => requestAllowingMissing("/plan"),
   completeTask: (taskId) => request(`/tasks/${taskId}/complete`, { method: "POST" }),
   ignoreTask: (taskId) => request(`/tasks/${taskId}/ignore`, { method: "POST" }),
+  getCareerHealth: () => request("/career-health"),
+  getExplanation: () => request("/explain"),
 };
