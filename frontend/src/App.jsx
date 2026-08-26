@@ -1,14 +1,21 @@
-import StateHeader from "./components/StateHeader";
-import WeeklyPlanPage from "./pages/WeeklyPlanPage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import HomePage from "./pages/HomePage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
-    <div className="app-shell">
-      <StateHeader />
-      <main>
-        <WeeklyPlanPage />
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="app-shell">
+        <NavBar />
+        <main>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 
