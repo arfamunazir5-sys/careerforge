@@ -58,9 +58,21 @@ function WeeklyPlanPage() {
     <section className="plan-page">
       <div className="plan-page-header">
         <h2>This Week's Plan</h2>
-        <button className="btn-primary" onClick={handleGeneratePlan}>
-          Generate New Plan
-        </button>
+        <div className="header-actions">
+          <button className="btn-primary" onClick={handleGeneratePlan}>
+            Generate New Plan
+          </button>
+          {plan && (
+            <a
+              className="btn-secondary"
+              href="http://127.0.0.1:8000/export-calendar"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Export to Calendar
+            </a>
+          )}
+        </div>
       </div>
 
       {error && <p className="error-text">{error}</p>}
