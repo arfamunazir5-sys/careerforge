@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from app.state.state_builder import get_current_state, update_state_fields
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
@@ -6,6 +6,7 @@ from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
+from app.export.calendar_export import build_ics_content
 from app.insights.career_health import compute_career_health
 from app.insights.explainability import generate_explanations
 
@@ -125,3 +126,16 @@ def read_skill_progress():
         "next_skill": next_skill,
         "full_chain": get_full_chain(state.target_role),
     }
+@app.get("/export-calendar")
+def export_calendar():
+    try:
+        plan = load_plan()
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="No weekly plan yet. Call POST /generate-plan first.")
+
+    ics_content = build_ics_content([t.dict() for t in plan.tasks])
+    return Response(
+        content=ics_content,
+        media_type="text/calendar",
+        headers={"Content-Disposition": "attachment; filename=careerforge_weekly_plan.ics"},
+    )
