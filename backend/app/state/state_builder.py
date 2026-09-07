@@ -27,3 +27,16 @@ def update_state_fields(updates: dict) -> None:
 
     with open(MOCK_STATE_PATH, "w") as f:
         json.dump(data, f, indent=2)
+        BASELINE_STATE_PATH = os.path.join(os.path.dirname(__file__), "baseline_state.json")
+
+
+BASELINE_STATE_PATH = os.path.join(os.path.dirname(__file__), "baseline_state.json")
+
+
+def reset_state() -> None:
+    """Restores mock_state.json to the pristine baseline. Used by /reset
+    so a demo can start from a clean Week 1 state without touching git."""
+    with open(BASELINE_STATE_PATH, "r") as f:
+        baseline_data = f.read()
+    with open(MOCK_STATE_PATH, "w") as f:
+        f.write(baseline_data)
