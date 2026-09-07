@@ -95,3 +95,8 @@ overall_score is the average of the 4 module scores from the shared state.
 }
 ```
 Built from each agent's existing bid reason (Phase 3) plus how its request compared to what the coordinator allocated it.
+## GET /export-calendar
+Returns a downloadable `.ics` file (`text/calendar`) built from the current
+weekly plan. Tasks are distributed round-robin across the 7 days of the
+current week starting Monday, each scheduled as an 18:00 event lasting the
+task's hours. Returns 404 if no plan has been generated yet.
