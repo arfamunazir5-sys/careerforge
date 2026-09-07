@@ -1,32 +1,26 @@
 import os
-from fastapi import FastAPI, HTTPException, Response
-from app.state.state_builder import get_current_state, update_state_fields, reset_state
-from app.plan.plan_store import PLAN_PATH
-from app.tracker.reward_log import LOG_PATH
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from app.state.state_builder import get_current_state
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
-from app.export.calendar_export import build_ics_content
-from app.insights.career_health import compute_career_health
-from app.insights.explainability import generate_explanations
-
-from fastapi.middleware.cors import CORSMiddleware
-from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
-from app.analysis.resume_analyzer import analyze_resume
-from app.analysis.portfolio_scanner import scan_portfolio
-from app.analysis.skill_graph import get_next_skill, get_full_chain
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://careerforge-five-tau.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 def _get_bids(state):
     return [
@@ -83,70 +77,13 @@ def complete_task(task_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 
+@app.post("/tasks/{task_id}/ignore")
+def ignore_task(task_id: str):
+    try:
+        return mark_task(task_id, "ignored")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 @app.get("/rewards")
 def read_rewards():
-    return get_log()
-@app.get("/career-health")
-def read_career_health():
-    state = get_current_state()
-    return compute_career_health(state)
-
-
-@app.get("/explain")
-def read_explanation():
-    state = get_current_state()
-    bids = _get_bids(state)
-    allocation = allocate(state, bids)
-    return generate_explanations(state, bids, allocation)
-
-
-@app.post("/analyze-resume")
-def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
-    result = analyze_resume(payload.resume_text, payload.target_role)
-    update_state_fields({"resume_score": result.resume_score})
-    return result
-
-
-@app.post("/analyze-portfolio")
-def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
-    result = scan_portfolio(payload.github_username)
-    update_state_fields({"portfolio_score": result.portfolio_score})
-    return result
-
-
-@app.get("/skill-graph/{target_role}")
-def read_skill_graph(target_role: str):
-    return {"target_role": target_role, "chain": get_full_chain(target_role)}
-
-
-@app.get("/skill-progress")
-def read_skill_progress():
-    state = get_current_state()
-    next_skill = get_next_skill(state.target_role, state.skill_progress.completed_skills)
-    return {
-        "target_role": state.target_role,
-        "completed_skills": state.skill_progress.completed_skills,
-        "next_skill": next_skill,
-        "full_chain": get_full_chain(state.target_role),
-    }
-@app.get("/export-calendar")
-def export_calendar():
-    try:
-        plan = load_plan()
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="No weekly plan yet. Call POST /generate-plan first.")
-
-    ics_content = build_ics_content([t.dict() for t in plan.tasks])
-    return Response(
-        content=ics_content,
-        media_type="text/calendar",
-        headers={"Content-Disposition": "attachment; filename=careerforge_weekly_plan.ics"},
-    )
-@app.post("/reset")
-def reset_demo_data():
-    reset_state()
-    if os.path.exists(PLAN_PATH):
-        os.remove(PLAN_PATH)
-    if os.path.exists(LOG_PATH):
-        os.remove(LOG_PATH)
-    return {"status": "reset complete"}
+    return get_log()    
