@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-from app.state.state_builder import get_current_state
+from app.state.state_builder import get_current_state, reset_state
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
@@ -44,6 +44,15 @@ def read_root():
 def read_state():
     return get_current_state()
 
+@app.post("/reset")
+def reset():
+
+    reset_state()
+
+    return {
+        "status": "reset",
+        "message": "CareerForge state restored to baseline."
+    }
 
 @app.get("/bids")
 def read_bids():
