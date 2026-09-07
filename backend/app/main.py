@@ -10,6 +10,8 @@ from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
 from app.export.calendar_export import build_ics_content
+from app.insights.career_health import compute_career_health
+from app.insights.explainability import generate_explanations
 
 app = FastAPI()
 app.add_middleware(
@@ -111,3 +113,25 @@ def ignore_task(task_id: str):
 @app.get("/rewards")
 def read_rewards():
     return get_log()    
+
+@app.get("/dashboard")
+def read_dashboard():
+
+    state = get_current_state()
+
+    bids = _get_bids(state)
+
+    allocation = allocate(state, bids)
+
+    career_health = compute_career_health(state)
+
+    explanations = generate_explanations(
+        state,
+        bids,
+        allocation
+    )
+
+    return {
+        "career_health": career_health,
+        "explanations": explanations,
+    }
