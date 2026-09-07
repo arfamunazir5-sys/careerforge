@@ -7,13 +7,13 @@ function DashboardPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.all([api.getCareerHealth(), api.getExplanation()])
-      .then(([healthData, explainData]) => {
-        setHealth(healthData);
-        setExplanation(explainData);
-      })
-      .catch((err) => setError(err.message));
-  }, []);
+  api.getDashboard()
+    .then((data) => {
+      setHealth(data.career_health);
+      setExplanation(data.explanations);
+    })
+    .catch((err) => setError(err.message));
+}, []);
 
   if (error) return <p className="error-text">{error}</p>;
   if (!health || !explanation) return <p className="status-text">Loading dashboard...</p>;
