@@ -1,5 +1,8 @@
+import os
 from fastapi import FastAPI, HTTPException, Response
-from app.state.state_builder import get_current_state, update_state_fields
+from app.state.state_builder import get_current_state, update_state_fields, reset_state
+from app.plan.plan_store import PLAN_PATH
+from app.tracker.reward_log import LOG_PATH
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
@@ -139,3 +142,11 @@ def export_calendar():
         media_type="text/calendar",
         headers={"Content-Disposition": "attachment; filename=careerforge_weekly_plan.ics"},
     )
+@app.post("/reset")
+def reset_demo_data():
+    reset_state()
+    if os.path.exists(PLAN_PATH):
+        os.remove(PLAN_PATH)
+    if os.path.exists(LOG_PATH):
+        os.remove(LOG_PATH)
+    return {"status": "reset complete"}
