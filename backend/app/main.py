@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from app.state.state_builder import get_current_state
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
@@ -8,6 +9,7 @@ from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
+from app.export.calendar_export import build_ics_content
 
 app = FastAPI()
 app.add_middleware(
@@ -68,6 +70,28 @@ def read_plan():
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="No weekly plan yet. Call POST /generate-plan first.")
 
+@app.get("/export-calendar")
+def export_calendar():
+
+    try:
+        plan = load_plan()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="No weekly plan yet. Call POST /generate-plan first."
+        )
+
+    tasks = [task.model_dump() for task in plan.tasks]
+
+    ics_content = build_ics_content(tasks)
+
+    return Response(
+        content=ics_content,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=careerforge_weekly_plan.ics"
+        },
+    )
 
 @app.post("/tasks/{task_id}/complete")
 def complete_task(task_id: str):
