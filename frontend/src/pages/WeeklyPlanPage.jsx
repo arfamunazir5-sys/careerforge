@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import TaskCard from "../components/TaskCard";
 import AllocationBar from "../components/AllocationBar";
+import { API_BASE_URL } from "../api/client";
 
 function WeeklyPlanPage() {
   const [plan, setPlan] = useState(null);
@@ -65,7 +66,7 @@ function WeeklyPlanPage() {
           {plan && (
             <a
               className="btn-secondary"
-              href="http://127.0.0.1:8000/export-calendar"
+              href={`${API_BASE_URL}/export-calendar`}
               target="_blank"
               rel="noopener noreferrer"
             >
