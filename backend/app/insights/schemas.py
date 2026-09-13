@@ -6,11 +6,10 @@ class ModuleScore(BaseModel):
     name: str
     score: int
 
-
 class CareerHealthResult(BaseModel):
     overall_score: int
+    label: str
     modules: List[ModuleScore]
-
 
 class ExplanationItem(BaseModel):
     agent: str

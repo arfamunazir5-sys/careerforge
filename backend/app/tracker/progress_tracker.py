@@ -3,7 +3,35 @@ from app.plan.plan_store import load_plan, save_plan
 from app.state.state_builder import get_current_state, MOCK_STATE_PATH
 from app.tracker.reward import compute_reward
 from app.tracker.reward_log import append_reward
+from app.analysis.skill_graph import get_next_skill
 
+SCORE_INCREMENT = 3
+MAX_SCORE = 100
+TASKS_PER_SKILL = 3
+
+
+def _apply_domain_progress(agent: str, state_data: dict) -> None:
+    """Bumps the relevant domain score when a task in that domain is
+    completed. Bounded, agent-specific, and never touches resume_score —
+    that stays tied only to real resume analysis via /analyze-resume."""
+    if agent == "networking":
+        state_data["networking_score"] = min(MAX_SCORE, state_data["networking_score"] + SCORE_INCREMENT)
+    elif agent == "portfolio":
+        state_data["portfolio_score"] = min(MAX_SCORE, state_data["portfolio_score"] + SCORE_INCREMENT)
+    elif agent == "interview_prep":
+        state_data["interview_score"] = min(MAX_SCORE, state_data["interview_score"] + SCORE_INCREMENT)
+    elif agent == "skill_building":
+        progress = state_data.get("skill_task_progress", 0) + 1
+        if progress >= TASKS_PER_SKILL:
+            current_next = state_data["skill_progress"]["next_skill"]
+            completed = state_data["skill_progress"]["completed_skills"]
+            if current_next not in completed:
+                completed.append(current_next)
+            state_data["skill_progress"]["next_skill"] = get_next_skill(
+                state_data["target_role"], completed
+            )
+            progress = 0
+        state_data["skill_task_progress"] = progress
 
 def mark_task(task_id: str, new_status: str) -> dict:
     """new_status is 'done' or 'ignored'. Updates the stored plan,
@@ -26,12 +54,13 @@ def mark_task(task_id: str, new_status: str) -> dict:
     with open(MOCK_STATE_PATH, "r") as f:
         state_data = json.load(f)
 
-    if new_status == "done":
-        state_data["completed_tasks_last_week"] += 1
-        state_data["streak_count"] += 1
-    elif new_status == "ignored":
-        state_data["ignored_tasks_last_week"] += 1
-        state_data["streak_count"] = 0
+        if new_status == "done":
+            state_data["completed_tasks_last_week"] += 1
+            state_data["streak_count"] += 1
+            _apply_domain_progress(task.agent, state_data)
+        elif new_status == "ignored":
+            state_data["ignored_tasks_last_week"] += 1
+            state_data["streak_count"] = 0
 
     with open(MOCK_STATE_PATH, "w") as f:
         json.dump(state_data, f, indent=2)

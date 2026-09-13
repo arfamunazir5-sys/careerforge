@@ -21,3 +21,4 @@ class StateVector(BaseModel):
     portfolio_score: int
     streak_count: int
     skill_progress: SkillProgress
+    skill_task_progress: int = 0
