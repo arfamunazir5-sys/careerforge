@@ -4,7 +4,7 @@ import TaskCard from "../components/TaskCard";
 import AllocationBar from "../components/AllocationBar";
 import { API_BASE_URL } from "../api/client";
 
-function WeeklyPlanPage() {
+function WeeklyPlanPage({ onTaskUpdate }) {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,6 +48,7 @@ function WeeklyPlanPage() {
         await api.ignoreTask(taskId);
       }
       await loadPlan();
+      if (onTaskUpdate) onTaskUpdate();
     } catch (err) {
       setError(err.message);
     }

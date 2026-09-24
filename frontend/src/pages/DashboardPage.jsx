@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 
-function DashboardPage() {
+function DashboardPage({ refreshKey }) {
   const [health, setHealth] = useState(null);
   const [explanation, setExplanation] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-  api.getDashboard()
-    .then((data) => {
-      setHealth(data.career_health);
-      setExplanation(data.explanations);
-    })
-    .catch((err) => setError(err.message));
-}, []);
+    api.getDashboard()
+      .then((data) => {
+        setHealth(data.career_health);
+        setExplanation(data.explanations);
+      })
+      .catch((err) => setError(err.message));
+  }, [refreshKey]);
 
   if (error) return <p className="error-text">{error}</p>;
   if (!health || !explanation) return <p className="status-text">Loading dashboard...</p>;

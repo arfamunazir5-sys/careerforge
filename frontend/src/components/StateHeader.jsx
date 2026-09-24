@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 
-function StateHeader() {
+function StateHeader({ refreshKey }) {
   const [state, setState] = useState(null);
 
   useEffect(() => {
     api.getState().then(setState).catch(() => setState(null));
-  }, []);
+  }, [refreshKey]);
 
   if (!state) return null;
 

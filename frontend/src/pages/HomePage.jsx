@@ -1,11 +1,11 @@
 import StateHeader from "../components/StateHeader";
 import WeeklyPlanPage from "./WeeklyPlanPage";
 
-function HomePage() {
+function HomePage({ refreshKey, onTaskUpdate }) {
   return (
     <>
-      <StateHeader />
-      <WeeklyPlanPage />
+      <StateHeader refreshKey={refreshKey} />
+      <WeeklyPlanPage onTaskUpdate={onTaskUpdate} />
     </>
   );
 }
