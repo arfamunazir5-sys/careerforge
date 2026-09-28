@@ -2,7 +2,12 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
-from app.state.state_builder import get_current_state, reset_state
+from pydantic import BaseModel
+from app.state.state_builder import get_current_state, reset_state, update_state_fields
+from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
+from app.analysis.resume_analyzer import analyze_resume
+from app.analysis.portfolio_scanner import scan_portfolio
+from app.analysis.skill_graph import get_next_skill, get_full_chain
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
@@ -12,6 +17,10 @@ from app.tracker.reward_log import get_log
 from app.export.calendar_export import build_ics_content
 from app.insights.career_health import compute_career_health
 from app.insights.explainability import generate_explanations
+
+class ProfileUpdateRequest(BaseModel):
+    target_role: str
+    available_hours: int
 
 app = FastAPI()
 app.add_middleware(
@@ -123,6 +132,14 @@ def ignore_task(task_id: str):
 def read_rewards():
     return get_log()    
 
+@app.post("/update-profile")
+def update_profile(payload: ProfileUpdateRequest):
+    update_state_fields({
+        "target_role": payload.target_role,
+        "available_hours": payload.available_hours,
+    })
+    return get_current_state()
+
 @app.get("/dashboard")
 def read_dashboard():
 
@@ -143,4 +160,34 @@ def read_dashboard():
     return {
         "career_health": career_health,
         "explanations": explanations,
+    }
+
+@app.post("/analyze-resume")
+def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
+    result = analyze_resume(payload.resume_text, payload.target_role)
+    update_state_fields({"resume_score": result.resume_score})
+    return result
+
+
+@app.post("/analyze-portfolio")
+def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
+    result = scan_portfolio(payload.github_username)
+    update_state_fields({"portfolio_score": result.portfolio_score})
+    return result
+
+
+@app.get("/skill-graph/{target_role}")
+def read_skill_graph(target_role: str):
+    return {"target_role": target_role, "chain": get_full_chain(target_role)}
+
+
+@app.get("/skill-progress")
+def read_skill_progress():
+    state = get_current_state()
+    next_skill = get_next_skill(state.target_role, state.skill_progress.completed_skills)
+    return {
+        "target_role": state.target_role,
+        "completed_skills": state.skill_progress.completed_skills,
+        "next_skill": next_skill,
+        "full_chain": get_full_chain(state.target_role),
     }
