@@ -8,6 +8,9 @@ function NavBar() {
         <NavLink to="/" end className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
           Weekly Plan
         </NavLink>
+        <NavLink to="/profile" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+          Profile
+        </NavLink>
         <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
           Dashboard
         </NavLink>

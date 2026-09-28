@@ -343,3 +343,30 @@ body {
 .btn-secondary:hover {
   border-color: var(--color-ink);
 }
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+}
+
+.profile-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.profile-form input,
+.profile-form select,
+.profile-form textarea {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--color-surface);
+}

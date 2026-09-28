@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -15,6 +16,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<HomePage refreshKey={refreshKey} onTaskUpdate={triggerRefresh} />} />
+            <Route path="/profile" element={<ProfilePage onProfileComplete={triggerRefresh} />} />
             <Route path="/dashboard" element={<DashboardPage refreshKey={refreshKey} />} />
           </Routes>
         </main>
