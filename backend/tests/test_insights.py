@@ -3,6 +3,7 @@ from app.agents import skill_agent, networking_agent, portfolio_agent, interview
 from app.agents.coordinator import allocate
 from app.insights.career_health import compute_career_health
 from app.insights.explainability import generate_explanations
+from app.insights.career_health import compute_biggest_opportunity
 
 
 def _get_bids(state):
@@ -35,3 +36,18 @@ def test_explanations_cover_all_agents():
     for item in result.items:
         assert item.explanation != ""
         print(f"{item.agent}: {item.explanation}")
+
+def test_biggest_opportunity_picks_lowest_score():
+    state = get_current_state()
+    result = compute_biggest_opportunity(state)
+
+    scores = {
+        "Resume": state.resume_score,
+        "Portfolio": state.portfolio_score,
+        "Networking": state.networking_score,
+        "Interview": state.interview_score,
+    }
+    assert result.score == min(scores.values())
+    assert result.module in scores
+    assert result.note != ""
+    print(f"biggest_opportunity={result.module} ({result.score}): {result.note}")

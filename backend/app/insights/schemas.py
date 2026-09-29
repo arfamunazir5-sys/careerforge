@@ -16,7 +16,11 @@ class ExplanationItem(BaseModel):
     hours: int
     explanation: str
 
-
 class ExplainabilityResult(BaseModel):
     week_number: int
     items: List[ExplanationItem]
+
+class BiggestOpportunity(BaseModel):
+    module: str
+    score: int
+    note: str

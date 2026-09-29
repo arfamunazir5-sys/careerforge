@@ -1,5 +1,5 @@
 from app.state.schemas import StateVector
-from app.insights.schemas import CareerHealthResult, ModuleScore
+from app.insights.schemas import CareerHealthResult, ModuleScore, BiggestOpportunity
 from app.agents.role_weights import get_weights_for_role
 
 # Maps role_weights.py's agent keys onto the 4 health-score modules.
@@ -42,3 +42,26 @@ def compute_career_health(state: StateVector) -> CareerHealthResult:
     overall = round(weighted_sum)
 
     return CareerHealthResult(overall_score=overall, label=_get_label(overall), modules=modules)
+
+NOTE_FIELD_MAP = {
+    "Resume": "resume_notes",
+    "Portfolio": "portfolio_notes",
+}
+
+
+def compute_biggest_opportunity(state: StateVector) -> BiggestOpportunity:
+    modules = {
+        "Resume": state.resume_score,
+        "Portfolio": state.portfolio_score,
+        "Networking": state.networking_score,
+        "Interview": state.interview_score,
+    }
+    weakest_module = min(modules, key=modules.get)
+    weakest_score = modules[weakest_module]
+
+    note_field = NOTE_FIELD_MAP.get(weakest_module)
+    note = getattr(state, note_field, "") if note_field else ""
+    if not note:
+        note = f"{weakest_module} is currently your lowest-scoring area for this role."
+
+    return BiggestOpportunity(module=weakest_module, score=weakest_score, note=note)

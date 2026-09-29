@@ -4,6 +4,7 @@ import { api } from "../api/client";
 function DashboardPage({ refreshKey }) {
   const [health, setHealth] = useState(null);
   const [explanation, setExplanation] = useState(null);
+  const [opportunity, setOpportunity] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -11,6 +12,7 @@ function DashboardPage({ refreshKey }) {
       .then((data) => {
         setHealth(data.career_health);
         setExplanation(data.explanations);
+        setOpportunity(data.biggest_opportunity);
       })
       .catch((err) => setError(err.message));
   }, [refreshKey]);
@@ -38,6 +40,14 @@ function DashboardPage({ refreshKey }) {
           ))}
         </div>
       </div>
+
+      {opportunity && (
+        <div className="opportunity-card">
+          <span className="opportunity-label">Biggest Opportunity</span>
+          <h3>{opportunity.module}</h3>
+          <p>{opportunity.note}</p>
+        </div>
+      )}
 
       <h2>Why This Week's Allocation</h2>
       <div className="explanation-list">

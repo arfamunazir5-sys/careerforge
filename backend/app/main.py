@@ -15,7 +15,7 @@ from app.plan.plan_store import save_plan, load_plan
 from app.tracker.progress_tracker import mark_task
 from app.tracker.reward_log import get_log
 from app.export.calendar_export import build_ics_content
-from app.insights.career_health import compute_career_health
+from app.insights.career_health import compute_career_health, compute_biggest_opportunity
 from app.insights.explainability import generate_explanations
 
 class ProfileUpdateRequest(BaseModel):
@@ -157,22 +157,30 @@ def read_dashboard():
         allocation
     )
 
+    biggest_opportunity = compute_biggest_opportunity(state)
+
     return {
         "career_health": career_health,
         "explanations": explanations,
+        "biggest_opportunity": biggest_opportunity,
     }
 
 @app.post("/analyze-resume")
 def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
     result = analyze_resume(payload.resume_text, payload.target_role)
-    update_state_fields({"resume_score": result.resume_score})
+    if result.missing_skills:
+        resume_note = f"Missing from resume: {', '.join(result.missing_skills)}"
+    else:
+        resume_note = "Resume covers the key skills for this role"
+    update_state_fields({"resume_score": result.resume_score, "resume_notes": resume_note})
     return result
 
 
 @app.post("/analyze-portfolio")
 def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
     result = scan_portfolio(payload.github_username)
-    update_state_fields({"portfolio_score": result.portfolio_score})
+    portfolio_note = "; ".join(result.notes) if result.notes else "Portfolio scan complete"
+    update_state_fields({"portfolio_score": result.portfolio_score, "portfolio_notes": portfolio_note})
     return result
 
 

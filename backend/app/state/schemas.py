@@ -22,3 +22,5 @@ class StateVector(BaseModel):
     streak_count: int
     skill_progress: SkillProgress
     skill_task_progress: int = 0
+    resume_notes: str = ""
+    portfolio_notes: str = ""
