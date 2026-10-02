@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
+import AllocationCompetition from "../components/AllocationCompetition";
 
 function DashboardPage({ refreshKey }) {
   const [health, setHealth] = useState(null);
   const [explanation, setExplanation] = useState(null);
   const [opportunity, setOpportunity] = useState(null);
+  const [bids, setBids] = useState(null);
+  const [allocation, setAllocation] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -13,6 +16,8 @@ function DashboardPage({ refreshKey }) {
         setHealth(data.career_health);
         setExplanation(data.explanations);
         setOpportunity(data.biggest_opportunity);
+        setBids(data.bids);
+        setAllocation(data.allocation);
       })
       .catch((err) => setError(err.message));
   }, [refreshKey]);
@@ -48,6 +53,8 @@ function DashboardPage({ refreshKey }) {
           <p>{opportunity.note}</p>
         </div>
       )}
+
+      <AllocationCompetition bids={bids} allocation={allocation} opportunity={opportunity} />
 
       <h2>Why This Week's Allocation</h2>
       <div className="explanation-list">

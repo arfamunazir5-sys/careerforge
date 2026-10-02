@@ -163,6 +163,8 @@ def read_dashboard():
         "career_health": career_health,
         "explanations": explanations,
         "biggest_opportunity": biggest_opportunity,
+        "bids": bids,
+        "allocation": allocation,
     }
 
 @app.post("/analyze-resume")
