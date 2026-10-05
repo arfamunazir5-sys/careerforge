@@ -35,6 +35,7 @@ def test_explanations_cover_all_agents():
     assert len(result.items) == 4
     for item in result.items:
         assert item.explanation != ""
+        assert "%" in item.explanation  # role weight percentage now mentioned
         print(f"{item.agent}: {item.explanation}")
 
 def test_biggest_opportunity_picks_lowest_score():
