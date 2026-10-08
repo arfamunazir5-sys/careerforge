@@ -34,4 +34,5 @@ export const api = {
   updateProfile: (data) => request("/update-profile", { method: "POST", body: JSON.stringify(data) }),
   analyzeResume: (data) => request("/analyze-resume", { method: "POST", body: JSON.stringify(data) }),
   analyzePortfolio: (data) => request("/analyze-portfolio", { method: "POST", body: JSON.stringify(data) }),
+  getSkillProgress: () => request("/skill-progress"),
 };

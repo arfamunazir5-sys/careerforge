@@ -484,3 +484,50 @@ body {
   font-size: 12px;
   color: var(--color-muted);
 }
+
+.plan-derivation-note {
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+
+.skill-path-wrap {
+  margin-top: 28px;
+}
+
+.skill-path-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  display: block;
+  margin-bottom: 8px;
+  text-transform: capitalize;
+}
+
+.skill-path-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  background: var(--color-surface);
+}
+
+.skill-chip.done {
+  background: var(--agent-skill);
+  border-color: var(--agent-skill);
+  color: white;
+}
+
+.skill-chip.next {
+  border-color: var(--agent-skill);
+  color: var(--agent-skill);
+  font-weight: 600;
+}

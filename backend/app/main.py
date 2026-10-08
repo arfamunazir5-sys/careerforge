@@ -134,9 +134,16 @@ def read_rewards():
 
 @app.post("/update-profile")
 def update_profile(payload: ProfileUpdateRequest):
+    state = get_current_state()
+    next_skill = get_next_skill(payload.target_role, state.skill_progress.completed_skills)
+
     update_state_fields({
         "target_role": payload.target_role,
         "available_hours": payload.available_hours,
+        "skill_progress": {
+            "completed_skills": state.skill_progress.completed_skills,
+            "next_skill": next_skill,
+        },
     })
     return get_current_state()
 

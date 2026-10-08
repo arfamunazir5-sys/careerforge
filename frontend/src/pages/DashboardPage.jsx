@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import AllocationCompetition from "../components/AllocationCompetition";
+import SkillPath from "../components/SkillPath";
 
 function DashboardPage({ refreshKey }) {
   const [health, setHealth] = useState(null);
@@ -62,7 +63,9 @@ function DashboardPage({ refreshKey }) {
           <p key={item.agent} className="explanation-item">{item.explanation}</p>
         ))}
       </div>
+      <SkillPath refreshKey={refreshKey} />
     </section>
+    
   );
 }
 

@@ -1,23 +1,23 @@
 {
   "user_id": "u1",
-  "target_role": "frontend_dev",
+  "target_role": "data_analyst",
   "week_number": 1,
   "available_hours": 10,
-  "completed_tasks_last_week": 6,
+  "completed_tasks_last_week": 7,
   "ignored_tasks_last_week": 1,
   "confidence": 6,
   "interview_score": 58,
   "resume_score": 0,
   "networking_score": 43,
-  "portfolio_score": 87,
-  "streak_count": 5,
+  "portfolio_score": 90,
+  "streak_count": 6,
   "skill_progress": {
     "completed_skills": [
       "python"
     ],
-    "next_skill": "flask"
+    "next_skill": "sql"
   },
   "skill_task_progress": 1,
-  "portfolio_notes": "Portfolio looks reasonably active.",
-  "resume_notes": "Missing from resume: javascript, react, html, css, git, responsive design"
+  "resume_notes": "Missing from resume: python, flask, fastapi, sql, rest api, docker, git",
+  "portfolio_notes": "Portfolio looks reasonably active."
 }

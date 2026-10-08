@@ -85,6 +85,10 @@ function WeeklyPlanPage({ onTaskUpdate }) {
 
       {plan && (
         <>
+          <p className="plan-derivation-note">
+            These {plan.tasks.reduce((sum, t) => sum + t.hours, 0)}h of tasks are this
+            week's allocation, broken down into concrete work.
+          </p>
           <AllocationBar tasks={plan.tasks} />
           <div className="task-list">
             {plan.tasks.map((task) => (
