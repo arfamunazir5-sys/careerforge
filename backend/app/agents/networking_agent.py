@@ -1,9 +1,10 @@
 from app.state.schemas import StateVector
 from app.agents.schemas import Bid
+from app.agents.calibration import need_from_score
 
 
 def get_bid(state: StateVector) -> Bid:
-    need = (100 - state.networking_score) / 100
+    need = need_from_score(state.networking_score)
     bid_score = round(need, 2)
     requested_hours = round(bid_score * state.available_hours * 0.3)
 
