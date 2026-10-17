@@ -30,7 +30,10 @@ export const api = {
   getPlan: () => requestAllowingMissing("/plan"),
   completeTask: (taskId) => request(`/tasks/${taskId}/complete`, { method: "POST" }),
   ignoreTask: (taskId) => request(`/tasks/${taskId}/ignore`, { method: "POST" }),
-  getDashboard: () => request("/dashboard"),
+  getDashboard: async () => {
+  const data = await request("/dashboard");
+  return Array.isArray(data) ? data[0] : data;
+},
   updateProfile: (data) => request("/update-profile", { method: "POST", body: JSON.stringify(data) }),
   analyzeResume: (data) => request("/analyze-resume", { method: "POST", body: JSON.stringify(data) }),
   analyzePortfolio: (data) => request("/analyze-portfolio", { method: "POST", body: JSON.stringify(data) }),

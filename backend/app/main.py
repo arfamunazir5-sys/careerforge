@@ -17,6 +17,7 @@ from app.tracker.reward_log import get_log
 from app.export.calendar_export import build_ics_content
 from app.insights.career_health import compute_career_health, compute_biggest_opportunity
 from app.insights.explainability import generate_explanations
+from app.insights.adaptation import snapshot_update, compute_adaptation
 
 class ProfileUpdateRequest(BaseModel):
     target_role: str
@@ -80,6 +81,7 @@ def create_plan():
     allocation = allocate(state, _get_bids(state))
     plan = generate_plan(state, allocation)
     save_plan(plan)
+    update_state_fields(snapshot_update(state, allocation))
     return plan
 
 
@@ -172,8 +174,9 @@ def read_dashboard():
         "biggest_opportunity": biggest_opportunity,
         "bids": bids,
         "allocation": allocation,
-    }
-
+        "adaptation": compute_adaptation(state),
+    },
+    
 @app.post("/analyze-resume")
 def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
     result = analyze_resume(payload.resume_text, payload.target_role)

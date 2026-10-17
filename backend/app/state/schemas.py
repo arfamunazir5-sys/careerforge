@@ -24,3 +24,5 @@ class StateVector(BaseModel):
     skill_task_progress: int = 0
     resume_notes: str = ""
     portfolio_notes: str = ""
+    plan_snapshot: dict = {}
+    previous_plan_snapshot: dict = {}

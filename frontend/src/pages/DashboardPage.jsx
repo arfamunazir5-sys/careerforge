@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api } from "../api/client";
 import AllocationCompetition from "../components/AllocationCompetition";
 import SkillPath from "../components/SkillPath";
+import AdaptationPanel from "../components/AdaptationPanel";
 
 function DashboardPage({ refreshKey }) {
   const [health, setHealth] = useState(null);
@@ -9,6 +10,7 @@ function DashboardPage({ refreshKey }) {
   const [opportunity, setOpportunity] = useState(null);
   const [bids, setBids] = useState(null);
   const [allocation, setAllocation] = useState(null);
+  const [adaptation, setAdaptation] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -19,6 +21,7 @@ function DashboardPage({ refreshKey }) {
         setOpportunity(data.biggest_opportunity);
         setBids(data.bids);
         setAllocation(data.allocation);
+        setAdaptation(data.adaptation);
       })
       .catch((err) => setError(err.message));
   }, [refreshKey]);
@@ -63,6 +66,7 @@ function DashboardPage({ refreshKey }) {
           <p key={item.agent} className="explanation-item">{item.explanation}</p>
         ))}
       </div>
+      <AdaptationPanel adaptation={adaptation} />
       <SkillPath refreshKey={refreshKey} />
     </section>
     
