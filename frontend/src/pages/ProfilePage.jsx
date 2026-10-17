@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 
@@ -17,6 +17,19 @@ function ProfilePage({ onProfileComplete }) {
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
   const [stepLabel, setStepLabel] = useState("");
+  
+  // Prefill from saved state so returning to this page shows what you
+  // actually chose, not the hardcoded defaults.
+  useEffect(() => {
+    api.getState()
+      .then((s) => {
+        if (ROLE_OPTIONS.some((r) => r.value === s.target_role)) {
+          setTargetRole(s.target_role);
+        }
+        setAvailableHours(s.available_hours);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
