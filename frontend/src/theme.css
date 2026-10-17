@@ -1,31 +1,31 @@
 :root {
-  /* surfaces + text */
-  --cf-bg: #f6f7fb;
-  --cf-surface: #ffffff;
-  --cf-surface-2: #f1f3f9;
-  --cf-border: #e3e6ef;
-  --cf-text: #161a2b;
-  --cf-text-muted: #5b6179;
-  --cf-text-faint: #8b91a7;
+  /* surfaces + text (aligned with index.css) */
+  --cf-bg: #F6F5F1;
+  --cf-surface: #FFFFFF;
+  --cf-surface-2: #EFEEE8;
+  --cf-border: #DCE0D6;
+  --cf-text: #20261F;
+  --cf-text-muted: #6B7267;
+  --cf-text-faint: #98A093;
 
   /* brand + status */
-  --cf-primary: #4f46e5;
-  --cf-primary-soft: #eef0ff;
-  --cf-primary-ink: #3730a3;
-  --cf-success: #16a34a;
-  --cf-success-soft: #e8f7ee;
-  --cf-warning: #b45309;
-  --cf-warning-soft: #fdf3e3;
-  --cf-danger: #dc2626;
-  --cf-danger-soft: #fdecec;
-  --cf-info: #0284c7;
-  --cf-info-soft: #e6f4fb;
+  --cf-primary: #2F6F5E;
+  --cf-primary-soft: #E6F0EC;
+  --cf-primary-ink: #1F4F42;
+  --cf-success: #2F7D4F;
+  --cf-success-soft: #E7F3EB;
+  --cf-warning: #A8631A;
+  --cf-warning-soft: #FBF0E2;
+  --cf-danger: #A6402F;
+  --cf-danger-soft: #FBEDEA;
+  --cf-info: #3B6EA5;
+  --cf-info-soft: #E8EFF7;
 
-  /* one color per agent, used everywhere */
-  --cf-agent-skill: #4f46e5;
-  --cf-agent-networking: #0d9488;
-  --cf-agent-portfolio: #ea7a1a;
-  --cf-agent-interview: #c026d3;
+  /* agent colors (same values as index.css) */
+  --cf-agent-skill: #2F6F5E;
+  --cf-agent-networking: #3B6EA5;
+  --cf-agent-portfolio: #C97A2B;
+  --cf-agent-interview: #7A5C8E;
 
   /* spacing, radius, shadow */
   --cf-space-1: 4px;
@@ -34,14 +34,15 @@
   --cf-space-4: 16px;
   --cf-space-5: 24px;
   --cf-space-6: 32px;
-  --cf-radius-sm: 8px;
-  --cf-radius: 14px;
+  --cf-radius-sm: 6px;
+  --cf-radius: 10px;
   --cf-radius-pill: 999px;
-  --cf-shadow-sm: 0 1px 2px rgba(22, 26, 43, 0.06);
-  --cf-shadow: 0 4px 16px rgba(22, 26, 43, 0.08);
+  --cf-shadow-sm: 0 1px 2px rgba(32, 38, 31, 0.06);
+  --cf-shadow: 0 4px 16px rgba(32, 38, 31, 0.08);
 
   /* type */
-  --cf-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --cf-font: 'Space Grotesk', sans-serif;
+  --cf-font-display: 'Fraunces', serif;
   --cf-text-xs: 0.75rem;
   --cf-text-sm: 0.875rem;
   --cf-text-md: 1rem;
@@ -50,15 +51,10 @@
   --cf-text-2xl: 2.25rem;
 }
 
-/* page shell for new pages */
+/* page shell for new pages (sits inside .app-shell) */
 .cf-page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--cf-space-5);
   font-family: var(--cf-font);
   color: var(--cf-text);
-  background: var(--cf-bg);
-  border-radius: var(--cf-radius);
 }
 
 /* simple responsive grids */
@@ -66,12 +62,11 @@
 .cf-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cf-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .cf-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-@media (max-width: 900px) {
+@media (max-width: 700px) {
   .cf-grid-3, .cf-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .cf-grid-2, .cf-grid-3, .cf-grid-4 { grid-template-columns: minmax(0, 1fr); }
-  .cf-page { padding: var(--cf-space-3); }
 }
 
 /* Card */
@@ -92,7 +87,7 @@
   gap: var(--cf-space-3);
   margin-bottom: var(--cf-space-3);
 }
-.cf-card-title { margin: 0; font-size: var(--cf-text-md); font-weight: 650; }
+.cf-card-title { margin: 0; font-family: var(--cf-font-display); font-size: var(--cf-text-lg); font-weight: 700; }
 .cf-card-subtitle { margin: 2px 0 0; font-size: var(--cf-text-sm); color: var(--cf-text-muted); }
 
 /* StatCard */
@@ -106,7 +101,7 @@
   text-align: left;
 }
 .cf-stat-label { font-size: var(--cf-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--cf-text-faint); }
-.cf-stat-value { font-size: var(--cf-text-xl); font-weight: 700; line-height: 1.2; margin-top: var(--cf-space-1); color: var(--cf-text); }
+.cf-stat-value { font-family: var(--cf-font-display); font-size: var(--cf-text-xl); font-weight: 700; line-height: 1.2; margin-top: var(--cf-space-1); color: var(--cf-text); }
 .cf-stat-hint { font-size: var(--cf-text-sm); color: var(--cf-text-muted); margin-top: var(--cf-space-1); }
 .cf-tone-success .cf-stat-value { color: var(--cf-success); }
 .cf-tone-warning .cf-stat-value { color: var(--cf-warning); }
@@ -143,5 +138,5 @@
   margin: var(--cf-space-5) 0 var(--cf-space-3);
   font-family: var(--cf-font);
 }
-.cf-section-title { margin: 0; font-size: var(--cf-text-lg); font-weight: 700; color: var(--cf-text); }
+.cf-section-title { margin: 0; font-family: var(--cf-font-display); font-size: var(--cf-text-lg); font-weight: 700; color: var(--cf-text); }
 .cf-section-subtitle { margin: 2px 0 0; font-size: var(--cf-text-sm); color: var(--cf-text-muted); }

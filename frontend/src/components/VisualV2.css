@@ -1,0 +1,97 @@
+/* ---------- allocation ---------- */
+.v2-alloc-top { display: flex; align-items: baseline; gap: 8px; }
+.v2-alloc-hours { font-family: var(--cf-font-display); font-size: 2.25rem; font-weight: 700; line-height: 1; color: var(--cf-text); }
+.v2-alloc-hours-label { font-size: var(--cf-text-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--cf-text-faint); }
+.v2-caption { margin: var(--cf-space-2) 0 var(--cf-space-4); font-size: var(--cf-text-sm); color: var(--cf-text-muted); line-height: 1.5; }
+
+.v2-stack {
+  display: flex;
+  height: 34px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--cf-border);
+}
+.v2-stack-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: var(--cf-text-xs);
+  font-weight: 700;
+  min-width: 0;
+  transition: width 0.4s ease;
+}
+.v2-legend { display: flex; flex-wrap: wrap; gap: var(--cf-space-3); margin-top: var(--cf-space-3); }
+.v2-legend-key { margin: var(--cf-space-4) 0 var(--cf-space-2); font-size: var(--cf-text-xs); color: var(--cf-text-faint); }
+
+.v2-rows { display: flex; flex-direction: column; gap: var(--cf-space-2); }
+.v2-row { padding: var(--cf-space-3); border-radius: 8px; border: 1px solid transparent; }
+.v2-row.highlighted { background: var(--cf-surface-2); border-color: var(--cf-border); }
+.v2-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cf-space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--cf-space-2);
+}
+.v2-row-tags { display: flex; align-items: center; gap: var(--cf-space-2); flex-wrap: wrap; }
+.v2-values { font-size: var(--cf-text-sm); color: var(--cf-text-muted); font-weight: 600; }
+.v2-bars { display: flex; flex-direction: column; gap: 4px; }
+.v2-track { height: 8px; background: var(--cf-border); border-radius: var(--cf-radius-pill); overflow: hidden; }
+.v2-bar-requested { height: 100%; background: var(--cf-text-muted); opacity: 0.45; border-radius: var(--cf-radius-pill); }
+.v2-bar-allocated { height: 100%; border-radius: var(--cf-radius-pill); transition: width 0.4s ease; }
+.v2-reason { margin: var(--cf-space-2) 0 0; font-size: var(--cf-text-xs); color: var(--cf-text-faint); line-height: 1.5; }
+
+/* ---------- adaptation ---------- */
+.v2-section-label {
+  display: block;
+  font-size: var(--cf-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cf-text-faint);
+  margin: var(--cf-space-4) 0 var(--cf-space-2);
+}
+.v2-section-label:first-child { margin-top: 0; }
+.v2-adapt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cf-space-3);
+  padding: var(--cf-space-2) 0;
+  border-top: 1px solid var(--cf-border);
+  font-size: var(--cf-text-sm);
+}
+.v2-adapt-row:first-of-type { border-top: none; }
+.v2-adapt-name { font-weight: 600; color: var(--cf-text); }
+.v2-adapt-values { display: flex; align-items: center; gap: var(--cf-space-2); color: var(--cf-text-muted); font-weight: 600; }
+.v2-adapt-note { margin: 0 0 var(--cf-space-2); font-size: var(--cf-text-xs); color: var(--cf-text-muted); line-height: 1.5; }
+.v2-empty {
+  border: 1px dashed var(--cf-border);
+  border-radius: 8px;
+  padding: var(--cf-space-4);
+  font-size: var(--cf-text-sm);
+  color: var(--cf-text-muted);
+  line-height: 1.55;
+  background: var(--cf-surface-2);
+}
+
+/* ---------- skill path ---------- */
+.v2-meter { height: 8px; background: var(--cf-border); border-radius: var(--cf-radius-pill); overflow: hidden; margin-bottom: var(--cf-space-3); }
+.v2-meter-fill { height: 100%; background: var(--cf-agent-skill); border-radius: var(--cf-radius-pill); transition: width 0.4s ease; }
+.v2-chips { display: flex; flex-wrap: wrap; gap: var(--cf-space-2); }
+.v2-chip {
+  font-size: var(--cf-text-xs);
+  padding: 5px 12px;
+  border-radius: var(--cf-radius-pill);
+  border: 1px solid var(--cf-border);
+  color: var(--cf-text-muted);
+  background: var(--cf-surface);
+  text-transform: capitalize;
+}
+.v2-chip.done { background: var(--cf-agent-skill); border-color: var(--cf-agent-skill); color: #fff; }
+.v2-chip.next { border-color: var(--cf-agent-skill); color: var(--cf-agent-skill); font-weight: 700; }
+
+@media (max-width: 480px) {
+  .v2-adapt-row { flex-direction: column; align-items: flex-start; gap: var(--cf-space-1); }
+}

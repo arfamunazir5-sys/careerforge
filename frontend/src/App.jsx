@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
+import CommandCenterPage from "./pages/CommandCenterPage";
 import ProfilePage from "./pages/ProfilePage";
 
 function App() {
@@ -17,7 +18,8 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage refreshKey={refreshKey} onTaskUpdate={triggerRefresh} />} />
             <Route path="/profile" element={<ProfilePage onProfileComplete={triggerRefresh} />} />
-            <Route path="/dashboard" element={<DashboardPage refreshKey={refreshKey} />} />
+            <Route path="/dashboard" element={<CommandCenterPage refreshKey={refreshKey} />} />
+            <Route path="/dashboard-classic" element={<DashboardPage refreshKey={refreshKey} />} />
           </Routes>
         </main>
       </div>
