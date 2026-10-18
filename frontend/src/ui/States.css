@@ -1,0 +1,32 @@
+.st-skel {
+  background: linear-gradient(90deg, var(--cf-border) 25%, var(--cf-surface-2) 50%, var(--cf-border) 75%);
+  background-size: 200% 100%;
+  animation: st-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes st-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .st-skel { animation: none; }
+}
+.st-skel-lines { display: flex; flex-direction: column; gap: var(--cf-space-2); }
+
+.st-center { text-align: center; padding: var(--cf-space-5) var(--cf-space-4); }
+.st-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto var(--cf-space-3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: var(--cf-surface-2);
+  color: var(--cf-text-muted);
+}
+.st-icon.error { background: var(--cf-danger-soft); color: var(--cf-danger); }
+.st-title { margin: 0 0 var(--cf-space-1); font-family: var(--cf-font-display); font-size: var(--cf-text-lg); font-weight: 700; color: var(--cf-text); }
+.st-message { margin: 0 auto var(--cf-space-3); max-width: 420px; font-size: var(--cf-text-sm); color: var(--cf-text-muted); line-height: 1.55; }
+.st-hint { margin: 0 auto var(--cf-space-3); max-width: 420px; font-size: var(--cf-text-xs); color: var(--cf-text-faint); line-height: 1.5; }

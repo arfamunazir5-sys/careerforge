@@ -1,0 +1,48 @@
+@media (max-width: 600px) {
+  .app-shell { padding: 12px 12px 40px; }
+
+  /* nav: full-width, big tap targets */
+  .nav-bar { flex-wrap: wrap; gap: 8px; padding: 12px 0; }
+  .nav-links { width: 100%; gap: 6px; }
+  .nav-link {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-link.active { border-bottom-color: var(--agent-skill); }
+
+  /* header strip */
+  .state-header { padding-bottom: 14px; margin-bottom: 18px; }
+  .score-strip { gap: 14px; }
+
+  /* weekly plan header + buttons */
+  .plan-page-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .header-actions { flex-direction: column; }
+  .header-actions > * { width: 100%; justify-content: center; }
+  .btn-primary, .btn-secondary { min-height: 44px; }
+
+  /* task cards stack, actions become big buttons */
+  .task-card { flex-direction: column; align-items: stretch; }
+  .task-actions { width: 100%; }
+  .btn-done, .btn-ignore { flex: 1; min-height: 44px; font-size: 14px; }
+
+  /* profile form: full width, 16px inputs stop iOS zoom */
+  .profile-form { max-width: 100%; }
+  .profile-form input,
+  .profile-form select,
+  .profile-form textarea { font-size: 16px; min-height: 44px; }
+
+  /* classic dashboard fallback page */
+  .health-score-wrap { gap: 16px; }
+  .module-scores { min-width: 0; }
+}
+
+@media (max-width: 360px) {
+  .brand h1 { font-size: 22px; }
+  .score-strip { gap: 10px; }
+  .score-value { font-size: 18px; }
+}

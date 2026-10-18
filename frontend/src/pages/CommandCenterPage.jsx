@@ -7,6 +7,8 @@ import Card from "../ui/Card";
 import StatCard from "../ui/StatCard";
 import Badge from "../ui/Badge";
 import SectionHeader from "../ui/SectionHeader";
+import { SkeletonCard } from "../ui/Skeleton";
+import ErrorState from "../ui/ErrorState";
 import { agentMeta } from "../ui/agentMeta";
 import "./CommandCenter.css";
 
@@ -47,8 +49,33 @@ function CommandCenterPage({ refreshKey }) {
       .catch((err) => setError(err.message));
   }, [refreshKey]);
 
-  if (error) return <p className="error-text">{error}</p>;
-  if (!health || !explanation) return <p className="status-text">Loading dashboard...</p>;
+  if (error) {
+    return (
+      <div className="cf-page">
+        <ErrorState message={error} onRetry={() => window.location.reload()} />
+      </div>
+    );
+  }
+
+  if (!health || !explanation) {
+    return (
+      <div className="cf-page">
+        <header className="cc-header">
+          <h1 className="cc-title">Command Center</h1>
+          <p className="cc-subtitle">Loading your dashboard...</p>
+        </header>
+        <div className="cc-stack">
+          <div className="cf-grid cf-grid-3">
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+          </div>
+          <SkeletonCard lines={5} />
+          <SkeletonCard lines={4} />
+        </div>
+      </div>
+    );
+  }
 
   const modules = health.modules || [];
   const strongest = modules.length
