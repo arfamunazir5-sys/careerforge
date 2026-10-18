@@ -1,0 +1,106 @@
+/* ---------- shared page bits ---------- */
+.pw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cf-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--cf-space-4);
+}
+.pw-title { margin: 0; font-family: var(--cf-font-display); font-size: 1.5rem; font-weight: 700; color: var(--cf-text); }
+.pw-subtitle { margin: 4px 0 0; font-size: var(--cf-text-sm); color: var(--cf-text-muted); }
+.pw-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.pw-stack > * + * { margin-top: var(--cf-space-4); }
+.pw-banner {
+  background: var(--cf-danger-soft);
+  color: var(--cf-danger);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  padding: var(--cf-space-3) var(--cf-space-4);
+  font-size: var(--cf-text-sm);
+}
+.pw-banner-success {
+  background: var(--cf-success-soft);
+  color: var(--cf-success);
+}
+.pw-progress-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--cf-space-3);
+  margin-bottom: var(--cf-space-2);
+}
+.pw-progress-count { font-family: var(--cf-font-display); font-size: 1.5rem; font-weight: 700; color: var(--cf-text); }
+.pw-progress-label { font-size: var(--cf-text-sm); color: var(--cf-text-muted); }
+.pw-note { margin: var(--cf-space-3) 0 0; font-size: var(--cf-text-sm); color: var(--cf-text-muted); line-height: 1.5; }
+.pw-task-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* ---------- task card ---------- */
+.tc2-card {
+  background: var(--cf-surface);
+  border: 1px solid var(--cf-border);
+  border-left: 4px solid var(--task-color, var(--cf-text));
+  border-radius: var(--cf-radius-sm);
+  box-shadow: var(--cf-shadow-sm);
+  padding: var(--cf-space-3) var(--cf-space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cf-space-3);
+  font-family: var(--cf-font);
+  text-align: left;
+}
+.tc2-title { margin: 0 0 6px; font-size: 15px; font-weight: 600; color: var(--cf-text); }
+.tc2-meta { display: flex; align-items: center; gap: var(--cf-space-2); }
+.tc2-hours { font-size: var(--cf-text-xs); color: var(--cf-text-muted); font-weight: 600; }
+.tc2-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.tc2-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+.tc2-done { opacity: 0.7; }
+.tc2-done .tc2-title { text-decoration: line-through; color: var(--cf-text-muted); }
+.tc2-ignored { opacity: 0.55; }
+
+/* ---------- profile form ---------- */
+.pf-fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+.pf-field { margin-bottom: var(--cf-space-4); display: flex; flex-direction: column; gap: 6px; }
+.pf-label { font-size: var(--cf-text-sm); font-weight: 600; color: var(--cf-text); }
+.pf-optional { font-weight: 400; color: var(--cf-text-faint); }
+.pf-input {
+  font-family: var(--cf-font);
+  font-size: 14px;
+  color: var(--cf-text);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  padding: 10px 12px;
+  background: var(--cf-surface);
+  width: 100%;
+}
+.pf-input:focus { outline: 2px solid var(--cf-primary); outline-offset: 1px; border-color: var(--cf-primary); }
+.pf-input.invalid { border-color: var(--cf-danger); }
+.pf-help { font-size: var(--cf-text-xs); color: var(--cf-text-faint); line-height: 1.5; }
+.pf-error { font-size: var(--cf-text-xs); color: var(--cf-danger); font-weight: 600; }
+.pf-submit { width: 100%; min-height: 44px; }
+
+.pf-steps { list-style: none; margin: var(--cf-space-4) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--cf-space-2); }
+.pf-step { display: flex; align-items: center; gap: var(--cf-space-3); font-size: var(--cf-text-sm); color: var(--cf-text-faint); }
+.pf-step-mark {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--cf-text-xs); font-weight: 700;
+  background: var(--cf-surface-2); color: var(--cf-text-faint);
+  flex-shrink: 0;
+}
+.pf-step.active { color: var(--cf-text); font-weight: 600; }
+.pf-step.active .pf-step-mark { background: var(--cf-primary-soft); color: var(--cf-primary-ink); }
+.pf-step.done { color: var(--cf-text-muted); }
+.pf-step.done .pf-step-mark { background: var(--cf-success); color: #fff; }
+.pf-step.failed { color: var(--cf-danger); font-weight: 600; }
+.pf-step.failed .pf-step-mark { background: var(--cf-danger); color: #fff; }
+
+@media (max-width: 600px) {
+  .pw-actions { width: 100%; flex-direction: column; }
+  .pw-actions > * { width: 100%; justify-content: center; min-height: 44px; }
+  .tc2-card { flex-direction: column; align-items: stretch; }
+  .tc2-actions { width: 100%; }
+  .tc2-actions button { flex: 1; min-height: 44px; font-size: 14px; }
+  .pf-input { font-size: 16px; min-height: 44px; }
+}
