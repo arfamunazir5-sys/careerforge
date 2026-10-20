@@ -11,6 +11,22 @@ import { SkeletonCard } from "../ui/Skeleton";
 import { agentMeta } from "../ui/agentMeta";
 import "../components/VisualV2.css";
 import "./PagesV2.css";
+import "./DayView.css";
+
+// Same rule the backend calendar export uses: task N goes on weekday N % 7,
+// counting from this week's Monday, starting at 6 PM.
+function weekStartMonday() {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+
+function formatDay(start, offset) {
+  const d = new Date(start);
+  d.setDate(start.getDate() + offset);
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
 
 function WeeklyPlanPageV2({ onTaskUpdate }) {
   const [plan, setPlan] = useState(null);
@@ -18,6 +34,7 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
   const [generating, setGenerating] = useState(false);
   const [busyTaskId, setBusyTaskId] = useState(null);
   const [error, setError] = useState(null);
+  const [view, setView] = useState("status");
 
   const loadPlan = async (showSpinner = true) => {
     if (showSpinner) setLoading(true);
@@ -126,6 +143,14 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
 
   const ordered = [...pendingTasks, ...doneTasks, ...ignoredTasks];
 
+  // Day view: original plan order, same rule as the calendar export.
+  const byDay = Array.from({ length: 7 }, () => []);
+  tasks.forEach((t, i) => byDay[i % 7].push(t));
+  const weekStart = weekStartMonday();
+  const dayGroups = byDay
+    .map((list, offset) => ({ offset, list }))
+    .filter((g) => g.list.length > 0);
+
   const calendarLink = (
     <a
       className="pw-link"
@@ -207,16 +232,66 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
           </Card>
         )}
 
-        <div className="pw-task-list">
-          {ordered.map((task) => (
-            <TaskCardV2
-              key={task.id}
-              task={task}
-              onAction={handleTaskAction}
-              disabled={busyTaskId !== null}
-            />
-          ))}
+        <div className="pw-toggle" role="group" aria-label="Task view">
+          <button
+            type="button"
+            className={view === "status" ? "active" : ""}
+            onClick={() => setView("status")}
+          >
+            By status
+          </button>
+          <button
+            type="button"
+            className={view === "day" ? "active" : ""}
+            onClick={() => setView("day")}
+          >
+            By day
+          </button>
         </div>
+
+        {view === "status" ? (
+          <div className="pw-task-list">
+            {ordered.map((task) => (
+              <TaskCardV2
+                key={task.id}
+                task={task}
+                onAction={handleTaskAction}
+                disabled={busyTaskId !== null}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="pw-day-list">
+            <p className="pw-note">
+              Suggested schedule: tasks are placed Monday first, one per day, at 6:00 PM. This is the
+              same schedule the calendar export uses. Marking a task done does not move it.
+            </p>
+            {dayGroups.map((g) => {
+              const dayHours = g.list.reduce((sum, t) => sum + t.hours, 0);
+              const dayDone = g.list.filter((t) => t.status === "done").length;
+              return (
+                <section key={g.offset}>
+                  <header className="pw-day-head">
+                    <span className="pw-day-name">{formatDay(weekStart, g.offset)}</span>
+                    <span className="pw-day-meta">
+                      from 6:00 PM &middot; {dayHours}h &middot; {dayDone}/{g.list.length} done
+                    </span>
+                  </header>
+                  <div className="pw-task-list">
+                    {g.list.map((task) => (
+                      <TaskCardV2
+                        key={task.id}
+                        task={task}
+                        onAction={handleTaskAction}
+                        disabled={busyTaskId !== null}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

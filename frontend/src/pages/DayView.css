@@ -1,0 +1,38 @@
+.pw-toggle {
+  display: inline-flex;
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-pill);
+  background: var(--cf-surface);
+  padding: 3px;
+  gap: 2px;
+}
+.pw-toggle button {
+  border: none;
+  background: transparent;
+  font-family: var(--cf-font);
+  font-size: var(--cf-text-xs);
+  font-weight: 600;
+  color: var(--cf-text-muted);
+  padding: 6px 14px;
+  border-radius: var(--cf-radius-pill);
+  cursor: pointer;
+  min-height: 32px;
+}
+.pw-toggle button.active { background: var(--cf-primary); color: #fff; }
+
+.pw-day-list > * + * { margin-top: var(--cf-space-4); }
+.pw-day-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--cf-space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--cf-space-2);
+}
+.pw-day-name { font-family: var(--cf-font-display); font-size: var(--cf-text-md); font-weight: 700; color: var(--cf-text); }
+.pw-day-meta { font-size: var(--cf-text-xs); color: var(--cf-text-faint); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .pw-toggle { width: 100%; }
+  .pw-toggle button { flex: 1; min-height: 44px; }
+}
