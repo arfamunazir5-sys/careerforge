@@ -1,299 +1,158 @@
 # CareerForge
 
-### AI-Powered Career Resource Allocation & Weekly Planning
+### AI-powered career resource allocation and weekly planning
 
-CareerForge is an AI-driven career planning web application that treats **career growth as a resource-allocation problem**.
+CareerForge treats **career growth as a resource-allocation problem**. Four specialised agents (Skill Building, Networking, Portfolio, Interview Prep) compete for a user's limited weekly hours. A coordinator weighs their bids by the user's target role, turns the winning allocation into concrete tasks, and then **adapts** the next plan as the user completes or ignores work.
 
-Instead of giving every career activity equal attention, CareerForge uses four specialized domain agents — **Skill Building, Networking, Portfolio, and Interview Prep** — that compete for a user's limited weekly time budget. A coordinator evaluates their bids and allocates time according to the user's career goals and current progress.
+> Final-year BCA project, 2026
 
-> **Built as a final-year BCA project — 2026**
+## Live application
 
----
+| Component | Link |
+| --- | --- |
+| Frontend | https://careerforge-five-tau.vercel.app/ |
+| Backend API | https://careerforge-backend-lo7f.onrender.com |
+| API docs (Swagger) | https://careerforge-backend-lo7f.onrender.com/docs |
 
-## Live Application
+> The backend runs on a free hosting tier that sleeps when idle. The first request after a quiet period can take up to a minute; the app shows a "Waking up the server" banner while it starts.
 
-| Component             | Link                                               |
-| --------------------- | -------------------------------------------------- |
-| **Frontend**          | https://careerforge-five-tau.vercel.app/           |
-| **Backend API**       | https://careerforge-backend-lo7f.onrender.com      |
-| **API Documentation** | https://careerforge-backend-lo7f.onrender.com/docs |
+## Screenshots
 
----
+| Command Center | Weekly Plan |
+| --- | --- |
+| ![Command Center](docs/screenshots/command-center.png) | ![Weekly Plan](docs/screenshots/weekly-plan.png) |
 
-## What CareerForge Does
+| Profile | Mobile |
+| --- | --- |
+| ![Profile](docs/screenshots/profile.png) | ![Mobile](docs/screenshots/mobile.png) |
 
-CareerForge helps users turn their career goals into a practical weekly action plan.
+## What it does
 
-The system:
+1. **Profile input:** the user chooses a target role and weekly hours, and optionally pastes a resume and a GitHub username.
+2. **Analysis:** the resume is analysed against the role's required skills, and public GitHub repositories are scanned. Both produce real scores.
+3. **Bidding:** each agent computes a bid from the user's current state.
+4. **Allocation:** the coordinator multiplies each bid by a role weight and splits the weekly hours.
+5. **Plan:** the allocation is turned into concrete weekly tasks, exportable to a calendar (`.ics`).
+6. **Feedback:** completing a task raises the relevant domain score; ignoring tasks ends the streak.
+7. **Adaptation:** regenerating the plan shows a before/after view, but only when something really changed.
+8. **Explainability:** a Career Health Score, a Biggest Opportunity card, a requested-vs-allocated chart and plain-language reasons explain every decision.
 
-* Analyzes the user's career profile and current progress
-* Considers the user's target role
-* Calculates competing priorities across career domains
-* Uses domain agents to submit time-allocation bids
-* Coordinates those bids within a fixed weekly time budget
-* Generates concrete weekly tasks
-* Tracks task completion and ignored tasks
-* Applies rewards and maintains a career streak
-* Calculates a **Career Health Score**
-* Explains why time was allocated to each domain
-* Exports the weekly plan to a calendar-compatible `.ics` file
+## How the allocation works
 
----
-
-## Core Architecture
+**Need curve.** Each domain's need falls as its score approaches a target of 70:
 
 ```text
-                    ┌─────────────────────┐
-                    │      User Profile   │
-                    │  Target Role + Data │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Profile Analysis  │
-                    │ Resume + Portfolio  │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-              ┌──────────────────────────────────┐
-              │         Domain Agents            │
-              │                                  │
-              │  Skill Building   Networking     │
-              │  Portfolio        Interview Prep │
-              └────────────────┬─────────────────┘
-                               │
-                            Bids ▼
-                    ┌─────────────────────┐
-                    │ Bidding Coordinator │
-                    │ Role-Weighted       │
-                    │ Allocation          │
-                    └──────────┬──────────┘
-                               │
-                         Allocated Hours
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ Weekly Plan         │
-                    │ Generator           │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ Progress + Rewards  │
-                    │ + Career Health     │
-                    │ + Explainability    │
-                    └─────────────────────┘
+need = clamp((70 - score) / 70, 0.05, 1.0)
 ```
 
----
+**Agent bids.**
 
-## Modules
+| Agent | Bid |
+| --- | --- |
+| Networking | need(networking score) |
+| Portfolio | need(portfolio score) |
+| Interview Prep | average of need(interview score) and the self-rated confidence gap |
+| Skill Building | 0.30 x roadmap remaining + 0.10 x need(resume score) + streak momentum (max 0.10) |
 
-### 1. Onboarding & Career Goal
+**Coordinator.** `combined = bid x role weight`, normalised so shares sum to 1, then converted to whole hours with the largest-remainder method, so the total always equals the available hours.
 
-* Target role selection
-* Career goal configuration
-* Role-specific weighting profiles
+| Role | Skill Building | Portfolio | Networking | Interview Prep |
+| --- | --- | --- | --- | --- |
+| Backend Developer | 0.40 | 0.25 | 0.15 | 0.20 |
+| Data Analyst | 0.45 | 0.20 | 0.15 | 0.20 |
+| Frontend Developer | 0.35 | 0.30 | 0.15 | 0.20 |
 
-### 2. Profile Analysis
+**Progress feedback.** Completing a Networking, Portfolio or Interview task adds 3 points to that score (capped at 100). Every 3 completed Skill Building tasks advance the skill roadmap to the next prerequisite-aware skill. Resume score only changes through a real resume analysis.
 
-* Resume analysis
-* Resume score
-* GitHub portfolio scanning
-* Portfolio score
+The bidding logic is deliberately transparent: every number above is visible in the code and explained to the user in the dashboard.
 
-### 3. Skill Dependency Graph
+## Architecture
 
-* Prerequisite-aware skill recommendations
-* Identifies the next relevant skill to develop
+```text
+Profile (role, hours, resume, GitHub)
+        |
+        v
+Analysis (resume score, portfolio score, skill graph)
+        |
+        v
+Four agents -> bids -> Coordinator (role-weighted) -> allocation
+                                                        |
+                                                        v
+                         Weekly plan -> task feedback -> updated state
+                                                        |
+                                                        v
+                              Adaptation (before/after) + Career Health
+```
 
-### 4. Domain Agents
+## Tech stack
 
-Four specialized agents independently evaluate the user's needs:
+- **Backend:** Python, FastAPI, Pydantic v2, JSON file storage, GitHub REST API, pytest
+- **Frontend:** React, Vite, React Router, plain CSS with a small design-token system
+- **Hosting:** Render (backend), Vercel (frontend)
 
-* **Skill Building**
-* **Networking**
-* **Portfolio**
-* **Interview Prep**
-
-Each agent produces a bid based on the user's current career state.
-
-### 5. Bidding Coordinator
-
-The coordinator evaluates the agents' bids and distributes the available weekly hours while considering the user's target role.
-
-### 6. Weekly Plan Generator
-
-Converts the final allocation into concrete, actionable weekly tasks.
-
-### 7. Progress Tracking & Reward Loop
-
-Tracks:
-
-* Completed tasks
-* Ignored tasks
-* Weekly progress
-* Career streak
-* Reward signals
-
-### 8. Dashboard & Explainability
-
-Provides:
-
-* **Career Health Score**
-* Module-level scores
-* Visual progress bars
-* Plain-language explanations for the weekly allocation
-
-### 9. Calendar Export
-
-Exports the generated weekly plan as a standard **`.ics` calendar file** that can be imported into calendar applications.
-
----
-
-## Career Health Score
-
-CareerForge provides a high-level view of the user's career readiness through four module scores:
-
-| Module         | Description                           |
-| -------------- | ------------------------------------- |
-| **Resume**     | Resume/profile strength               |
-| **Portfolio**  | Project and portfolio strength        |
-| **Networking** | Networking activity and readiness     |
-| **Interview**  | Interview preparation and performance |
-
-The dashboard combines these module scores into an overall **Career Health Score** and provides explanations for the current weekly allocation.
-
----
-
-## Tech Stack
-
-### Backend
-
-* Python
-* FastAPI
-* Pydantic
-* JSON-based state storage
-* GitHub REST API
-* Pytest
-
-### Frontend
-
-* React
-* Vite
-* JavaScript
-* CSS
-
-### Deployment
-
-* **Backend:** Render
-* **Frontend:** Vercel
-
----
-
-## Project Structure
+## Project structure
 
 ```text
 careerforge/
-│
-├── backend/
-│   ├── app/
-│   │   ├── agents/
-│   │   ├── analysis/
-│   │   ├── export/
-│   │   ├── insights/
-│   │   ├── plan/
-│   │   ├── state/
-│   │   ├── tracker/
-│   │   └── main.py
-│   │
-│   ├── tests/
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── components/
-│   │   └── pages/
-│   └── package.json
-│
-├── docs/
-└── README.md
++-- backend/
+|   +-- app/
+|   |   +-- agents/      four agents, calibration, coordinator, role weights
+|   |   +-- analysis/    resume analyzer, GitHub scanner, skill graph
+|   |   +-- export/      calendar (.ics) export
+|   |   +-- insights/    career health, explanations, adaptation
+|   |   +-- plan/        plan generator and store
+|   |   +-- state/       state vector and state builder
+|   |   +-- tracker/     progress tracker, rewards
+|   |   +-- main.py      FastAPI app
+|   +-- scripts/         probes and demo_reset.py
+|   +-- tests/
++-- frontend/
+|   +-- src/
+|       +-- api/         API client
+|       +-- components/  agent, allocation, adaptation and plan components
+|       +-- pages/       Weekly Plan, Profile, Command Center
+|       +-- ui/          theme primitives and loading/empty/error states
++-- docs/                screenshots and demo script
++-- README.md
 ```
 
----
-
-## API Highlights
-
-The FastAPI backend currently provides endpoints for:
+## API highlights
 
 ```text
-GET  /
-GET  /state
-GET  /bids
-GET  /allocate
-POST /generate-plan
-GET  /plan
-GET  /export-calendar
-POST /tasks/{task_id}/complete
-POST /tasks/{task_id}/ignore
-GET  /rewards
-GET  /dashboard
-POST /reset
+GET  /                      health check
+GET  /state                 current state vector
+GET  /bids                  the four agent bids
+GET  /allocate              coordinator allocation
+POST /generate-plan         build and save the weekly plan
+GET  /plan                  current plan (404 if none yet)
+GET  /export-calendar       .ics download
+POST /tasks/{id}/complete   mark a task done
+POST /tasks/{id}/ignore     mark a task ignored
+GET  /rewards               reward log
+POST /update-profile        set role and hours
+POST /analyze-resume        resume analysis, updates resume score
+POST /analyze-portfolio     GitHub scan, updates portfolio score
+GET  /skill-graph/{role}    role skill chain
+GET  /skill-progress        completed and next skills
+GET  /dashboard             health, bids, allocation, explanations, adaptation
+POST /reset                 restore the clean baseline state
 ```
 
-Interactive API documentation is available through the deployed Swagger UI:
+## Running locally
 
-https://careerforge-backend-lo7f.onrender.com/docs
-
----
-
-## Running Locally
-
-### Backend
-
-From the project root:
+**Backend** (Windows):
 
 ```bash
 cd backend
 python -m venv venv
-```
-
-Activate the virtual environment.
-
-**Windows:**
-
-```bash
 venv\Scripts\activate
-```
-
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
-```
-
-Start the FastAPI server:
-
-```bash
 uvicorn app.main:app --reload
 ```
 
-The backend will be available at:
+Backend: http://127.0.0.1:8000 (docs at /docs)
 
-```text
-http://127.0.0.1:8000
-```
-
-Swagger documentation:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
-### Frontend
-
-Open another terminal:
+**Frontend** (second terminal):
 
 ```bash
 cd frontend
@@ -301,69 +160,42 @@ npm install
 npm run dev
 ```
 
-The frontend runs at:
+Frontend: http://localhost:5173
 
-```text
-http://localhost:5173
-```
+> Use `localhost`, not `127.0.0.1`, for the frontend; the backend's CORS list allows `localhost:5173`.
 
-> **Important:** For local frontend testing, use `http://localhost:5173` rather than `http://127.0.0.1:5173`.
-
----
+For a deployed frontend, set `VITE_API_BASE_URL` to the backend URL.
 
 ## Testing
-
-Backend tests can be run with:
 
 ```bash
 cd backend
 python -m pytest
 ```
 
-The project includes tests covering the Career Health and explainability functionality.
+31 automated tests cover the calibrated bidding and allocation (progress in a domain lowers that domain's share, hours always sum to the budget), adaptation tracking, career health and explanations.
 
----
+## Demo
 
-## Demo / Reset
-
-CareerForge includes a baseline reset endpoint for demonstrations and testing.
-
-```text
-POST /reset
+```bash
+python backend\scripts\demo_reset.py              # warm up the live backend and reset to baseline
+python backend\scripts\demo_reset.py --warmup-only
+python backend\scripts\demo_reset.py --local
 ```
 
-This restores the application state to the clean baseline without requiring manual modification of the state file.
+A 3-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
----
+## Limitations
 
-## Deployment
+- State is stored in JSON files for a single user; there is no authentication or database.
+- The free hosting tier resets file storage and sleeps when idle.
+- Resumes are pasted as text (no PDF upload); GitHub scanning uses the public API and can be rate limited.
+- Three target roles are supported.
 
-CareerForge is deployed using:
+## Future work
 
-**Frontend**
-
-* Vercel
-* React + Vite
-
-**Backend**
-
-* Render
-* FastAPI
-
-The production frontend communicates with the deployed backend through the configured API base URL.
-
----
+User accounts and a database with history, PDF resume upload, more roles, per-agent ignore tracking, and calendar integration beyond `.ics` export.
 
 ## Team
 
-**Person A · Person B · Person C**
-
-Final-Year BCA Project · 2026
-
----
-
-## Project Goal
-
-CareerForge explores how **AI agents, resource allocation, and explainable decision-making** can be combined to create a practical career-planning system.
-
-The goal is not simply to recommend what a user should learn, but to determine **where the user's limited weekly time should be invested for maximum career growth**.
+Built by Arfa Munazir (lead developer) with teammates Anam Khanum and Arfa Taj, as a final-year BCA project, 2026.
