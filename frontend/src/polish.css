@@ -1,0 +1,37 @@
+/* nav icons */
+.nav-link { display: inline-flex; align-items: center; gap: 6px; }
+
+/* buttons with an icon */
+.btn-primary.with-icon { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* small secondary action (calendar export) */
+.pw-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--cf-text-xs);
+  font-weight: 600;
+  color: var(--cf-text-muted);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-pill);
+  background: var(--cf-surface);
+}
+.pw-link:hover { color: var(--cf-text); border-color: var(--cf-text-muted); }
+
+/* Command Center hero */
+.cc-hero { display: flex; align-items: center; gap: var(--cf-space-5); flex-wrap: wrap; }
+.cc-hero-body { flex: 1; min-width: 220px; text-align: left; }
+.cc-hero-title { margin: var(--cf-space-2) 0 var(--cf-space-1); font-family: var(--cf-font-display); font-size: var(--cf-text-xl); font-weight: 700; color: var(--cf-text); line-height: 1.2; }
+.cc-hero-chips { display: flex; flex-wrap: wrap; gap: var(--cf-space-2); margin-top: var(--cf-space-3); }
+
+/* Weekly plan ring */
+.pw-ring-row { display: flex; align-items: center; gap: var(--cf-space-4); }
+.pw-ring-text { flex: 1; text-align: left; }
+
+@media (max-width: 480px) {
+  .cc-hero { flex-direction: column; text-align: center; }
+  .cc-hero-body { text-align: center; }
+  .cc-hero-chips { justify-content: center; }
+}

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { Sparkles, Download } from "lucide-react";
 import { api, API_BASE_URL } from "../api/client";
 import TaskCardV2 from "../components/TaskCardV2";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import EmptyState from "../ui/EmptyState";
 import ErrorState from "../ui/ErrorState";
+import ProgressRing from "../ui/ProgressRing";
 import { SkeletonCard } from "../ui/Skeleton";
 import { agentMeta } from "../ui/agentMeta";
 import "../components/VisualV2.css";
@@ -68,7 +70,8 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
   };
 
   const generateButton = (
-    <button className="btn-primary" onClick={handleGeneratePlan} disabled={generating}>
+    <button className="btn-primary with-icon" onClick={handleGeneratePlan} disabled={generating}>
+      <Sparkles size={16} aria-hidden="true" />
       {generating ? "Generating..." : plan ? "Generate New Plan" : "Generate My Plan"}
     </button>
   );
@@ -123,6 +126,18 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
 
   const ordered = [...pendingTasks, ...doneTasks, ...ignoredTasks];
 
+  const calendarLink = (
+    <a
+      className="pw-link"
+      href={`${API_BASE_URL}/export-calendar`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <Download size={14} aria-hidden="true" />
+      Calendar (.ics)
+    </a>
+  );
+
   return (
     <div className="cf-page">
       <div className="pw-header">
@@ -130,36 +145,33 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
           <h2 className="pw-title">This Week's Plan</h2>
           <p className="pw-subtitle">Your allocation, broken down into concrete work.</p>
         </div>
-        <div className="pw-actions">
-          {generateButton}
-          <a
-            className="btn-secondary"
-            href={`${API_BASE_URL}/export-calendar`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Export to Calendar
-          </a>
-        </div>
+        <div className="pw-actions">{generateButton}</div>
       </div>
 
       <div className="pw-stack">
         {error && <div className="pw-banner">{error}</div>}
 
-        <Card title="Week progress">
-          <div className="pw-progress-line">
-            <span className="pw-progress-count">
-              {handledCount} / {tasks.length}
-            </span>
-            <span className="pw-progress-label">
-              tasks handled &middot; {doneHours}h of {totalHours}h completed
-            </span>
-          </div>
-          <div className="v2-meter">
-            <div className="v2-meter-fill" style={{ width: `${pct}%` }} />
+        <Card title="Week progress" action={calendarLink}>
+          <div className="pw-ring-row">
+            <ProgressRing
+              value={pct}
+              size={96}
+              stroke={10}
+              color="var(--cf-agent-skill)"
+              label={`${pct}%`}
+              sublabel="handled"
+            />
+            <div className="pw-ring-text">
+              <div className="pw-progress-count">
+                {handledCount} / {tasks.length}
+              </div>
+              <div className="pw-progress-label">
+                tasks handled &middot; {doneHours}h of {totalHours}h completed
+              </div>
+            </div>
           </div>
           {tasks.length > 0 && pendingTasks.length === 0 && (
-            <div className="pw-banner pw-banner-success">
+            <div className="pw-banner pw-banner-success" style={{ marginTop: "var(--cf-space-3)" }}>
               Every task is handled. Generate a new plan to see how your hours adapt.
             </div>
           )}

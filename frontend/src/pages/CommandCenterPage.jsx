@@ -4,9 +4,9 @@ import AllocationCompetitionV2 from "../components/AllocationCompetitionV2";
 import SkillPathV2 from "../components/SkillPathV2";
 import AdaptationPanelV2 from "../components/AdaptationPanelV2";
 import Card from "../ui/Card";
-import StatCard from "../ui/StatCard";
 import Badge from "../ui/Badge";
 import SectionHeader from "../ui/SectionHeader";
+import ProgressRing from "../ui/ProgressRing";
 import { SkeletonCard } from "../ui/Skeleton";
 import ErrorState from "../ui/ErrorState";
 import { agentMeta } from "../ui/agentMeta";
@@ -21,10 +21,10 @@ function moduleColor(name) {
   return "var(--cf-primary)";
 }
 
-function scoreTone(score) {
-  if (score >= 70) return "success";
-  if (score >= 50) return "primary";
-  return "warning";
+function ringColor(score) {
+  if (score >= 70) return "var(--cf-success)";
+  if (score >= 50) return "var(--cf-primary)";
+  return "var(--cf-warning)";
 }
 
 function CommandCenterPage({ refreshKey }) {
@@ -65,11 +65,7 @@ function CommandCenterPage({ refreshKey }) {
           <p className="cc-subtitle">Loading your dashboard...</p>
         </header>
         <div className="cc-stack">
-          <div className="cf-grid cf-grid-3">
-            <SkeletonCard lines={2} />
-            <SkeletonCard lines={2} />
-            <SkeletonCard lines={2} />
-          </div>
+          <SkeletonCard lines={3} />
           <SkeletonCard lines={5} />
           <SkeletonCard lines={4} />
         </div>
@@ -95,30 +91,33 @@ function CommandCenterPage({ refreshKey }) {
       </header>
 
       <div className="cc-stack">
-        <div className="cf-grid cf-grid-3">
-          <StatCard
-            label="Career health"
-            value={`${health.overall_score} / 100`}
-            hint={health.label || "Overall score"}
-            tone={scoreTone(health.overall_score)}
-          />
-          {strongest && (
-            <StatCard
-              label="Strongest area"
-              value={strongest.name}
-              hint={`Score ${strongest.score}`}
-              tone="success"
+        <Card>
+          <div className="cc-hero">
+            <ProgressRing
+              value={health.overall_score}
+              size={140}
+              stroke={13}
+              color={ringColor(health.overall_score)}
+              label={health.overall_score}
+              sublabel="/ 100"
             />
-          )}
-          {weakest && (
-            <StatCard
-              label="Needs most work"
-              value={weakest.name}
-              hint={`Score ${weakest.score}`}
-              tone="warning"
-            />
-          )}
-        </div>
+            <div className="cc-hero-body">
+              <Badge tone="primary">Career Health Score</Badge>
+              <h2 className="cc-hero-title">{health.label || "Your overall readiness"}</h2>
+              <p className="cc-subtitle">
+                Combined from your resume, portfolio, networking and interview scores.
+              </p>
+              <div className="cc-hero-chips">
+                {strongest && (
+                  <Badge tone="success">{`Strongest: ${strongest.name} ${strongest.score}`}</Badge>
+                )}
+                {weakest && (
+                  <Badge tone="warning">{`Needs work: ${weakest.name} ${weakest.score}`}</Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
 
         <Card title="Module scores" subtitle="Where you stand in each area">
           <div className="cc-modules">
