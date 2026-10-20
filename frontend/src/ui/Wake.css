@@ -1,0 +1,35 @@
+.wake-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cf-space-3);
+  background: var(--cf-warning-soft);
+  color: var(--cf-warning);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  padding: var(--cf-space-3) var(--cf-space-4);
+  margin-bottom: var(--cf-space-3);
+  font-family: var(--cf-font);
+  font-size: var(--cf-text-sm);
+  line-height: 1.5;
+}
+.wake-banner.failed { background: var(--cf-danger-soft); color: var(--cf-danger); }
+.wake-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+  animation: wake-pulse 1.2s ease-in-out infinite;
+}
+@keyframes wake-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wake-dot { animation: none; }
+}
+.wake-text { flex: 1; }
+@media (max-width: 480px) {
+  .wake-banner { flex-wrap: wrap; }
+}
