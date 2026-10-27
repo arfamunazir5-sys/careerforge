@@ -31,6 +31,8 @@ function ProfilePageV2({ onProfileComplete }) {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [steps, setSteps] = useState([]);
   const [stepIdx, setStepIdx] = useState(-1);
+  const [warnings, setWarnings] = useState([]);
+  const [failedSteps, setFailedSteps] = useState([]);
 
   // Prefill from saved state so returning to this page shows what you
   // actually chose, not the hardcoded defaults.
@@ -74,6 +76,10 @@ function ProfilePageV2({ onProfileComplete }) {
     setStepIdx(0);
     setStatus("working");
     setError(null);
+    setWarnings([]);
+    setFailedSteps([]);
+    const collected = [];
+    const failed = [];
 
     try {
       await api.updateProfile({ target_role: targetRole, available_hours: Number(availableHours) });
@@ -81,13 +87,25 @@ function ProfilePageV2({ onProfileComplete }) {
       let i = 1;
       if (resumeText.trim()) {
         setStepIdx(i);
-        await api.analyzeResume({ resume_text: resumeText, target_role: targetRole });
+        try {
+          await api.analyzeResume({ resume_text: resumeText, target_role: targetRole });
+        } catch (err) {
+          collected.push(`Resume analysis was skipped: ${err.message}`);
+          failed.push(i);
+          setFailedSteps([...failed]);
+        }
         i += 1;
       }
 
       if (githubUsername.trim()) {
         setStepIdx(i);
-        await api.analyzePortfolio({ github_username: githubUsername.trim() });
+        try {
+          await api.analyzePortfolio({ github_username: githubUsername.trim() });
+        } catch (err) {
+          collected.push(`GitHub scan was skipped: ${err.message}`);
+          failed.push(i);
+          setFailedSteps([...failed]);
+        }
         i += 1;
       }
 
@@ -96,6 +114,11 @@ function ProfilePageV2({ onProfileComplete }) {
 
       setStepIdx(planned.length);
       if (onProfileComplete) onProfileComplete();
+      if (collected.length > 0) {
+        setWarnings(collected);
+        setStatus("warning");
+        return;
+      }
       navigate("/dashboard");
     } catch (err) {
       setStatus("error");
@@ -104,6 +127,7 @@ function ProfilePageV2({ onProfileComplete }) {
   };
 
   const stepState = (idx) => {
+    if (failedSteps.includes(idx)) return "failed";
     if (status === "error" && idx === stepIdx) return "failed";
     if (idx < stepIdx) return "done";
     if (idx === stepIdx) return "active";
@@ -200,7 +224,7 @@ function ProfilePageV2({ onProfileComplete }) {
           </fieldset>
         </form>
 
-        {steps.length > 0 && (working || status === "error") && (
+        {steps.length > 0 && (working || status === "error" || status === "warning") && (
           <ol className="pf-steps">
             {steps.map((label, idx) => {
               const s = stepState(idx);
@@ -214,6 +238,27 @@ function ProfilePageV2({ onProfileComplete }) {
               );
             })}
           </ol>
+        )}
+
+        {status === "warning" && (
+          <div
+            className="pw-banner"
+            style={{
+              marginTop: "var(--cf-space-4)",
+              background: "var(--cf-warning-soft)",
+              color: "var(--cf-warning)",
+            }}
+          >
+            <strong>Your plan was built, but some analysis was skipped:</strong>
+            <ul style={{ margin: "8px 0", paddingLeft: 20 }}>
+              {warnings.map((w) => (
+                <li key={w}>{w}</li>
+              ))}
+            </ul>
+            <button type="button" className="btn-primary" onClick={() => navigate("/dashboard")}>
+              Continue to Command Center
+            </button>
+          </div>
         )}
 
         {error && (

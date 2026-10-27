@@ -12,7 +12,7 @@ Interactive docs: /docs
 | --- | --- | --- |
 | GET | / | Health check: `{"status": "CareerForge backend is alive"}` |
 | GET | /state | Current state vector |
-| POST | /reset | Restore the baseline state: `{"status": "reset", "message": "..."}` |
+| POST | /reset | Restore the baseline state and delete the weekly plan and reward log: `{"status": "reset", "message": "..."}` |
 | POST | /update-profile | Set role and hours, returns the updated state |
 | POST | /analyze-resume | Analyse resume text, updates resume_score |
 | POST | /analyze-portfolio | Scan GitHub, updates portfolio_score |
@@ -102,14 +102,14 @@ The hours always sum to `available_hours`.
 ## task update (POST /tasks/{task_id}/complete and /ignore)
 
 ```json
-{ "task_id": "t1", "status": "done", "reward": 1.0 }
+{ "task_id": "t1", "status": "done", "reward": 15 }
 ```
 
-Errors: 404 with `detail` if the task id is unknown or the task was already marked. Completing a task raises the matching domain score by 3 (max 100); every 3 skill_building tasks advance the skill roadmap. Ignoring resets `streak_count` to 0.
+Errors: 404 with `detail` if the task id is unknown or the task was already marked. Completing a task raises the matching domain score by 3 (max 100); every 3 skill_building tasks advance the skill roadmap. Ignoring resets `streak_count` to 0. Rewards: done = 5, done while `streak_count` >= 1 = 15, ignored = -5. Rewards are only logged (GET /rewards); they do not change future allocations.
 
 ## update-profile (POST /update-profile)
 
-Request: `{ "target_role": "frontend_dev", "available_hours": 15 }`. Returns a state_vector.
+Request: `{ "target_role": "frontend_dev", "available_hours": 15 }`. Returns a state_vector. Errors: 422 if `target_role` is not one of the allowed roles or `available_hours` is outside 1-80. Changing the role clears `resume_notes` and `skill_task_progress`.
 
 ## resume_analysis (POST /analyze-resume)
 
@@ -139,7 +139,7 @@ Request: `{ "github_username": "octocat" }`
 }
 ```
 
-Updates `portfolio_score` and `portfolio_notes`. Numbers vary with live GitHub data.
+Updates `portfolio_score` and `portfolio_notes`. Numbers vary with live GitHub data. `readme_ratio` is the share of original repos that have a GitHub description (READMEs and commits are not checked). Errors: 422 for a blank or invalid username, 404 if the GitHub user does not exist, 502 on a GitHub rate limit or network failure. A failed scan never changes the stored score.
 
 ## skill_progress (GET /skill-progress)
 
@@ -189,7 +189,7 @@ Note: this endpoint returns a JSON array containing ONE object (a trailing comma
 }
 ```
 
-- `overall_score` is the average of the four module scores.
+- `overall_score` is role-weighted: each module is multiplied by the target role's agent weight (Resume uses the skill_building weight) and the results are summed.
 - `bids` and `allocation` use the shapes above.
 - `adaptation.progress` and `adaptation.reallocation` are empty lists unless something really changed since the previous plan.
 

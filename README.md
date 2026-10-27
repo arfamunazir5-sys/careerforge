@@ -1,6 +1,6 @@
 # CareerForge
 
-### AI-powered career resource allocation and weekly planning
+### Multi-agent career resource allocation and weekly planning
 
 CareerForge treats **career growth as a resource-allocation problem**. Four specialised agents (Skill Building, Networking, Portfolio, Interview Prep) compete for a user's limited weekly hours. A coordinator weighs their bids by the user's target role, turns the winning allocation into concrete tasks, and then **adapts** the next plan as the user completes or ignores work.
 
@@ -29,7 +29,7 @@ CareerForge treats **career growth as a resource-allocation problem**. Four spec
 ## What it does
 
 1. **Profile input:** the user chooses a target role and weekly hours, and optionally pastes a resume and a GitHub username.
-2. **Analysis:** the resume is analysed against the role's required skills, and public GitHub repositories are scanned. Both produce real scores.
+2. **Analysis:** the resume is checked against a per-role keyword list (whole-word matching), and public GitHub repositories are scanned. Both produce real scores.
 3. **Bidding:** each agent computes a bid from the user's current state.
 4. **Allocation:** the coordinator multiplies each bid by a role weight and splits the weekly hours.
 5. **Plan:** the allocation is turned into concrete weekly tasks, exportable to a calendar (`.ics`).
@@ -64,7 +64,7 @@ need = clamp((70 - score) / 70, 0.05, 1.0)
 
 **Progress feedback.** Completing a Networking, Portfolio or Interview task adds 3 points to that score (capped at 100). Every 3 completed Skill Building tasks advance the skill roadmap to the next prerequisite-aware skill. Resume score only changes through a real resume analysis.
 
-The bidding logic is deliberately transparent: every number above is visible in the code and explained to the user in the dashboard.
+The bidding logic is deliberately transparent: every number above is visible in the code and explained to the user in the dashboard. The agents are rule-based: no machine-learning model or LLM is used, and adaptation comes from updating the user's scores and skill roadmap.
 
 ## Architecture
 
@@ -135,7 +135,7 @@ POST /analyze-portfolio     GitHub scan, updates portfolio score
 GET  /skill-graph/{role}    role skill chain
 GET  /skill-progress        completed and next skills
 GET  /dashboard             health, bids, allocation, explanations, adaptation
-POST /reset                 restore the clean baseline state
+POST /reset                 restore the baseline state, delete the plan and reward log
 ```
 
 ## Running locally

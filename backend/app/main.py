@@ -6,14 +6,15 @@ from pydantic import BaseModel
 from app.state.state_builder import get_current_state, reset_state, update_state_fields
 from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
 from app.analysis.resume_analyzer import analyze_resume
-from app.analysis.portfolio_scanner import scan_portfolio
+from app.analysis.portfolio_scanner import scan_portfolio, PortfolioScanError
 from app.analysis.skill_graph import get_next_skill, get_full_chain
+from app.agents.role_weights import ROLE_WEIGHTS
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate
 from app.plan.plan_generator import generate_plan
-from app.plan.plan_store import save_plan, load_plan
+from app.plan.plan_store import save_plan, load_plan, clear_plan
 from app.tracker.progress_tracker import mark_task
-from app.tracker.reward_log import get_log
+from app.tracker.reward_log import get_log, clear_log
 from app.export.calendar_export import build_ics_content
 from app.insights.career_health import compute_career_health, compute_biggest_opportunity
 from app.insights.explainability import generate_explanations
@@ -34,6 +35,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _require_known_role(role: str) -> None:
+    if role not in ROLE_WEIGHTS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unknown target role '{role}'. Choose one of: {', '.join(ROLE_WEIGHTS)}.",
+        )
 
 
 def _get_bids(state):
@@ -58,10 +67,12 @@ def read_state():
 def reset():
 
     reset_state()
+    clear_plan()
+    clear_log()
 
     return {
         "status": "reset",
-        "message": "CareerForge state restored to baseline."
+        "message": "CareerForge state, weekly plan and reward log restored to baseline."
     }
 
 @app.get("/bids")
@@ -132,21 +143,30 @@ def ignore_task(task_id: str):
 
 @app.get("/rewards")
 def read_rewards():
-    return get_log()    
+    return get_log()
 
 @app.post("/update-profile")
 def update_profile(payload: ProfileUpdateRequest):
+    _require_known_role(payload.target_role)
+    if not 1 <= payload.available_hours <= 80:
+        raise HTTPException(status_code=422, detail="available_hours must be between 1 and 80.")
+
     state = get_current_state()
     next_skill = get_next_skill(payload.target_role, state.skill_progress.completed_skills)
 
-    update_state_fields({
+    updates = {
         "target_role": payload.target_role,
         "available_hours": payload.available_hours,
         "skill_progress": {
             "completed_skills": state.skill_progress.completed_skills,
             "next_skill": next_skill,
         },
-    })
+    }
+    if payload.target_role != state.target_role:
+        # The resume notes and in-progress skill tasks belonged to the old role.
+        updates["resume_notes"] = ""
+        updates["skill_task_progress"] = 0
+    update_state_fields(updates)
     return get_current_state()
 
 @app.get("/dashboard")
@@ -176,9 +196,10 @@ def read_dashboard():
         "allocation": allocation,
         "adaptation": compute_adaptation(state),
     },
-    
+
 @app.post("/analyze-resume")
 def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
+    _require_known_role(payload.target_role)
     result = analyze_resume(payload.resume_text, payload.target_role)
     if result.missing_skills:
         resume_note = f"Missing from resume: {', '.join(result.missing_skills)}"
@@ -190,7 +211,10 @@ def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
 
 @app.post("/analyze-portfolio")
 def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
-    result = scan_portfolio(payload.github_username)
+    try:
+        result = scan_portfolio(payload.github_username)
+    except PortfolioScanError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
     portfolio_note = "; ".join(result.notes) if result.notes else "Portfolio scan complete"
     update_state_fields({"portfolio_score": result.portfolio_score, "portfolio_notes": portfolio_note})
     return result

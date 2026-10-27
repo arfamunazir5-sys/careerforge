@@ -16,3 +16,9 @@ def load_plan() -> WeeklyPlan:
     with open(PLAN_PATH, "r") as f:
         data = json.load(f)
     return WeeklyPlan(**data)
+
+
+def clear_plan() -> None:
+    """Deletes the stored plan (used by /reset)."""
+    if os.path.exists(PLAN_PATH):
+        os.remove(PLAN_PATH)

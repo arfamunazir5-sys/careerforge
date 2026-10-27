@@ -20,3 +20,9 @@ def append_reward(entry: dict) -> None:
 
 def get_log() -> list:
     return _load_log()
+
+
+def clear_log() -> None:
+    """Deletes the reward log (used by /reset)."""
+    if os.path.exists(LOG_PATH):
+        os.remove(LOG_PATH)

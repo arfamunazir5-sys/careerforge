@@ -39,7 +39,7 @@ Click "Generate New Plan", then open the Command Center. Show the Adaptation car
 
 ## Likely questions
 
-- **Where is the AI?** Four autonomous agents bid using their own state-driven logic, and a coordinator resolves the competition. The bids are transparent formulas so every decision can be explained, which is why the dashboard shows the reasons.
+- **Where is the AI?** Four autonomous agents bid using their own state-driven logic, and a coordinator resolves the competition. The bids are transparent formulas so every decision can be explained, which is why the dashboard shows the reasons. There is no machine-learning model or LLM: it is a transparent rule-based multi-agent system, and adaptation comes from updating real scores and the skill roadmap.
 - **Why does Skill Building often win?** Role weights: it has the largest weight in all three roles. That is a deliberate role-priority choice, shown in the dashboard.
 - **How does it adapt?** Completing tasks raises that domain's score, which lowers its need and its bid, so hours shift to other domains on the next plan.
 - **What happens when a task is ignored?** The streak resets, which removes the Skill Building agent's momentum bonus. Ignores are stored as one counter, not per agent, which is listed as future work.
