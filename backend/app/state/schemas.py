@@ -26,3 +26,6 @@ class StateVector(BaseModel):
     portfolio_notes: str = ""
     plan_snapshot: dict = {}
     previous_plan_snapshot: dict = {}
+    profile_completed: bool = False
+    resume_details: dict = {}
+    portfolio_details: dict = {}

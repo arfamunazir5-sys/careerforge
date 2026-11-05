@@ -2,6 +2,7 @@ from typing import List
 from app.state.schemas import StateVector
 from app.agents.schemas import Bid, Allocation
 from app.agents.role_weights import get_weights_for_role
+from app.agents.coordinator import compute_shares
 from app.insights.schemas import ExplainabilityResult, ExplanationItem
 
 AGENT_LABELS = {
@@ -28,6 +29,7 @@ NOTE_FIELD_MAP = {
 def generate_explanations(state: StateVector, bids: List[Bid], allocation: Allocation) -> ExplainabilityResult:
     bid_by_agent = {b.agent: b for b in bids}
     role_weights = get_weights_for_role(state.target_role)
+    shares = compute_shares(state, bids)
     role_label = ROLE_LABELS.get(state.target_role, state.target_role.replace("_", " ").title())
     items = []
 
@@ -53,12 +55,10 @@ def generate_explanations(state: StateVector, bids: List[Bid], allocation: Alloc
                 parts.append(note + ".")
 
         if bid:
-            if hours < bid.requested_hours:
-                parts.append(
-                    f"It requested {bid.requested_hours}h but other agents had a stronger case this week."
-                )
-            elif bid.requested_hours > 0 and hours >= bid.requested_hours:
-                parts.append("It received its full requested share.")
+            parts.append(
+                f"Its bid strength was {bid.bid_score:.2f}, which after role weighting "
+                f"gives it {shares.get(agent, 0)}% of your hours."
+            )
 
         items.append(ExplanationItem(agent=agent, hours=hours, explanation=" ".join(parts)))
 

@@ -21,16 +21,16 @@ function StateHeader({ refreshKey }) {
         <ScoreItem label="Portfolio" value={state.portfolio_score} />
         <ScoreItem label="Networking" value={state.networking_score} />
         <ScoreItem label="Interview" value={state.interview_score} />
-        <ScoreItem label="Streak" value={`${state.streak_count}w`} isText />
+        <ScoreItem label="Task streak" value={state.streak_count} />
       </div>
     </header>
   );
 }
 
-function ScoreItem({ label, value, isText }) {
+function ScoreItem({ label, value }) {
   return (
     <div className="score-item">
-      <span className="score-value">{isText ? value : value}</span>
+      <span className="score-value">{value}</span>
       <span className="score-label">{label}</span>
     </div>
   );

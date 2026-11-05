@@ -2,6 +2,7 @@ import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import { agentMeta } from "../ui/agentMeta";
 import "./VisualV2.css";
+import "./Phase2.css";
 
 // Resume has no dedicated agent; its score feeds the skill agent's bid.
 const OPPORTUNITY_TO_AGENT = {
@@ -11,36 +12,34 @@ const OPPORTUNITY_TO_AGENT = {
   Interview: "interview_prep",
 };
 
-function AllocationCompetitionV2({ bids, allocation, opportunity }) {
+function AllocationCompetitionV2({ bids, allocation, opportunity, shares }) {
   if (!bids || !allocation) return null;
 
-  const allocationByAgent = {};
+  const hoursByAgent = {};
   allocation.allocations.forEach((a) => {
-    allocationByAgent[a.agent] = a.hours;
+    hoursByAgent[a.agent] = a.hours;
   });
 
   const totalHours = allocation.allocations.reduce((sum, a) => sum + a.hours, 0);
 
   const topAgent = allocation.allocations.reduce(
-    (top, a) => (a.hours > (allocationByAgent[top] ?? -1) ? a.agent : top),
+    (top, a) => (a.hours > (hoursByAgent[top] ?? -1) ? a.agent : top),
     allocation.allocations[0]?.agent
   );
 
   const opportunityAgent = opportunity ? OPPORTUNITY_TO_AGENT[opportunity.module] : null;
   const isAligned = Boolean(opportunityAgent) && topAgent === opportunityAgent;
 
-  const maxValue = Math.max(
-    ...bids.map((b) => Math.max(b.requested_hours, allocationByAgent[b.agent] || 0)),
-    1
-  );
+  const shareOf = (agent) => {
+    if (shares && shares[agent] !== undefined) return shares[agent];
+    return totalHours ? Math.round(((hoursByAgent[agent] || 0) / totalHours) * 1000) / 10 : 0;
+  };
 
   const segments = [...allocation.allocations]
     .filter((a) => a.hours > 0)
     .sort((a, b) => b.hours - a.hours);
 
-  const rows = [...bids].sort(
-    (a, b) => (allocationByAgent[b.agent] || 0) - (allocationByAgent[a.agent] || 0)
-  );
+  const rows = [...bids].sort((a, b) => (hoursByAgent[b.agent] || 0) - (hoursByAgent[a.agent] || 0));
 
   return (
     <Card title="This week's allocation" subtitle="Four agents competed for your hours">
@@ -82,11 +81,15 @@ function AllocationCompetitionV2({ bids, allocation, opportunity }) {
         </>
       )}
 
-      <p className="v2-legend-key">Faded bar = hours the agent asked for. Solid bar = hours it got.</p>
+      <p className="v2-legend-key">
+        Bid strength (0 to 1) is how strongly an agent argued for time. Share of week is its bid
+        multiplied by your role's weight, divided across all four agents.
+      </p>
 
       <div className="v2-rows">
         {rows.map((bid) => {
-          const allocated = allocationByAgent[bid.agent] || 0;
+          const hours = hoursByAgent[bid.agent] || 0;
+          const share = shareOf(bid.agent);
           const isHighlighted = bid.agent === opportunityAgent;
           return (
             <div key={bid.agent} className={`v2-row ${isHighlighted ? "highlighted" : ""}`}>
@@ -96,25 +99,28 @@ function AllocationCompetitionV2({ bids, allocation, opportunity }) {
                   {isHighlighted && <Badge tone="primary">Biggest opportunity</Badge>}
                 </div>
                 <span className="v2-values">
-                  asked {bid.requested_hours}h &rarr; got {allocated}h
+                  {hours}h &middot; {share}% of your week
                 </span>
               </div>
-              <div className="v2-bars">
-                <div className="v2-track">
-                  <div
-                    className="v2-bar-requested"
-                    style={{ width: `${(bid.requested_hours / maxValue) * 100}%` }}
-                  />
-                </div>
-                <div className="v2-track">
-                  <div
-                    className="v2-bar-allocated"
-                    style={{
-                      width: `${(allocated / maxValue) * 100}%`,
-                      background: agentMeta(bid.agent).color,
-                    }}
-                  />
-                </div>
+              <div className="p2-bar-label">
+                <span>Bid strength</span>
+                <span>{Number(bid.bid_score).toFixed(2)}</span>
+              </div>
+              <div className="v2-track">
+                <div
+                  className="v2-bar-requested"
+                  style={{ width: `${Math.min(100, bid.bid_score * 100)}%` }}
+                />
+              </div>
+              <div className="p2-bar-label">
+                <span>Share of week</span>
+                <span>{share}%</span>
+              </div>
+              <div className="v2-track">
+                <div
+                  className="v2-bar-allocated"
+                  style={{ width: `${Math.min(100, share)}%`, background: agentMeta(bid.agent).color }}
+                />
               </div>
               {bid.reason && <p className="v2-reason">{bid.reason}</p>}
             </div>

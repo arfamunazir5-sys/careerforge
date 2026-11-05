@@ -18,9 +18,9 @@ function hoursTone(n) {
 
 function AdaptationPanelV2({ adaptation }) {
   if (!adaptation) return null;
-  const { progress = [], reallocation = [] } = adaptation;
+  const { progress = [], reallocation = [], share_shifts: shareShifts = [] } = adaptation;
 
-  if (progress.length === 0 && reallocation.length === 0) {
+  if (progress.length === 0 && reallocation.length === 0 && shareShifts.length === 0) {
     return (
       <Card title="Adaptation" subtitle="Shown only when something has really changed">
         <div className="v2-empty">
@@ -42,6 +42,21 @@ function AdaptationPanelV2({ adaptation }) {
               <span className="v2-adapt-values">
                 {p.before} &rarr; {p.after}
                 <Badge tone={progressTone(p.change)}>{fmt(p.change)}</Badge>
+              </span>
+            </div>
+          ))}
+        </>
+      )}
+
+      {shareShifts.length > 0 && (
+        <>
+          <span className="v2-section-label">Share of your week if the plan were rebuilt now</span>
+          {shareShifts.map((s) => (
+            <div key={s.agent} className="v2-adapt-row">
+              <Badge agent={s.agent} />
+              <span className="v2-adapt-values">
+                {s.before}% &rarr; {s.after}%
+                <Badge tone={s.change < 0 ? "info" : "warning"}>{`${fmt(s.change)} pts`}</Badge>
               </span>
             </div>
           ))}

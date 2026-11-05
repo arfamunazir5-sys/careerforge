@@ -3,6 +3,8 @@ import { api } from "../api/client";
 import AllocationCompetitionV2 from "../components/AllocationCompetitionV2";
 import SkillPathV2 from "../components/SkillPathV2";
 import AdaptationPanelV2 from "../components/AdaptationPanelV2";
+import AnalysisCard from "../components/AnalysisCard";
+import SampleDataBanner from "../components/SampleDataBanner";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import SectionHeader from "../ui/SectionHeader";
@@ -34,6 +36,7 @@ function CommandCenterPage({ refreshKey }) {
   const [bids, setBids] = useState(null);
   const [allocation, setAllocation] = useState(null);
   const [adaptation, setAdaptation] = useState(null);
+  const [shares, setShares] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -45,6 +48,7 @@ function CommandCenterPage({ refreshKey }) {
         setBids(data.bids);
         setAllocation(data.allocation);
         setAdaptation(data.adaptation);
+        setShares(data.allocation_shares);
       })
       .catch((err) => setError(err.message));
   }, [refreshKey]);
@@ -83,6 +87,7 @@ function CommandCenterPage({ refreshKey }) {
 
   return (
     <div className="cf-page">
+      <SampleDataBanner refreshKey={refreshKey} />
       <header className="cc-header">
         <h1 className="cc-title">Command Center</h1>
         <p className="cc-subtitle">
@@ -119,7 +124,10 @@ function CommandCenterPage({ refreshKey }) {
           </div>
         </Card>
 
-        <Card title="Module scores" subtitle="Where you stand in each area">
+        <Card
+          title="Module scores"
+          subtitle="Resume and Portfolio come from your analysis. Networking and Interview are task-based estimates until you assess them."
+        >
           <div className="cc-modules">
             {modules.map((m) => (
               <div key={m.name} className="cc-module-row">
@@ -144,7 +152,14 @@ function CommandCenterPage({ refreshKey }) {
           </Card>
         )}
 
-        <AllocationCompetitionV2 bids={bids} allocation={allocation} opportunity={opportunity} />
+        <AnalysisCard refreshKey={refreshKey} />
+
+        <AllocationCompetitionV2
+          bids={bids}
+          allocation={allocation}
+          opportunity={opportunity}
+          shares={shares}
+        />
 
         <SectionHeader
           title="Why this week's allocation"

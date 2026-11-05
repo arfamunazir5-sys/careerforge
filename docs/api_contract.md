@@ -57,11 +57,16 @@ Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
     "role": "frontend_dev",
     "hours": 15
   },
-  "previous_plan_snapshot": {}
+  "previous_plan_snapshot": {},
+  "profile_completed": false,
+  "resume_details": {},
+  "portfolio_details": {}
 }
 ```
 
 `skill_task_progress` counts completed skill tasks toward the current skill (3 per skill).
+`profile_completed` is false until POST /update-profile is called (the UI shows a sample-data notice). `resume_details` ({role, missing_skills, weak_sections, keyword_gaps}) and `portfolio_details` ({repo_count, readme_ratio, notes}) store the last analysis for display; a role change clears `resume_details`.
+`streak_count` counts tasks completed in a row (not weeks).
 `plan_snapshot` is written by POST /generate-plan; `previous_plan_snapshot` holds the one before it and powers the Adaptation panel.
 
 ## bid (GET /bids returns a list of these)
@@ -70,7 +75,7 @@ Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
 { "agent": "networking", "bid_score": 0.39, "requested_hours": 2, "reason": "networking score is low, needs attention" }
 ```
 
-`bid_score` is between 0 and 1. The coordinator only uses `bid_score` and the role weight; `requested_hours` is informational.
+`bid_score` is between 0 and 1. The coordinator only uses `bid_score` and the role weight; `requested_hours` is informational and is not shown to users.
 
 ## allocation (GET /allocate)
 
@@ -178,19 +183,24 @@ Note: this endpoint returns a JSON array containing ONE object (a trailing comma
   "biggest_opportunity": { "module": "Networking", "note": "..." },
   "bids": [],
   "allocation": { "week_number": 1, "allocations": [] },
+  "allocation_shares": { "skill_building": 38.4, "networking": 19.1, "portfolio": 24.5, "interview_prep": 18.0 },
   "adaptation": {
     "progress": [
       { "module": "Networking", "before": 43, "after": 52, "change": 9 }
     ],
     "reallocation": [
       { "agent": "networking", "before": 3, "after": 2, "note": "..." }
+    ],
+    "share_shifts": [
+      { "agent": "networking", "before": 19.1, "after": 17.6, "change": -1.5 }
     ]
   }
 }
 ```
 
 - `overall_score` is role-weighted: each module is multiplied by the target role's agent weight (Resume uses the skill_building weight) and the results are summed.
-- `bids` and `allocation` use the shapes above.
+- `bids` and `allocation` use the shapes above. `allocation_shares` is each agent's unrounded share of the week in percent (same math as the allocation, before whole-hour rounding).
+- `adaptation.share_shifts` compares the live shares with the shares stored when the current plan was built (changes of 0.1 points or more; empty if the role or hours changed).
 - `adaptation.progress` and `adaptation.reallocation` are empty lists unless something really changed since the previous plan.
 
 ## rewards (GET /rewards)

@@ -15,6 +15,8 @@ AGENT_LABELS = {
     "interview_prep": "Interview Prep",
 }
 
+SHARE_SHIFT_MIN = 0.1  # percentage points
+
 
 def current_scores(state: StateVector) -> dict:
     return {
@@ -25,25 +27,28 @@ def current_scores(state: StateVector) -> dict:
     }
 
 
-def build_snapshot(state: StateVector, allocation: Allocation) -> dict:
-    return {
+def build_snapshot(state: StateVector, allocation: Allocation, shares: dict = None) -> dict:
+    snapshot = {
         "scores": current_scores(state),
         "allocation": {a.agent: a.hours for a in allocation.allocations},
         "role": state.target_role,
         "hours": state.available_hours,
     }
+    if shares:
+        snapshot["shares"] = shares
+    return snapshot
 
 
 def _state_key(snapshot: dict):
     return (snapshot.get("scores"), snapshot.get("role"), snapshot.get("hours"))
 
 
-def snapshot_update(state: StateVector, allocation: Allocation) -> dict:
+def snapshot_update(state: StateVector, allocation: Allocation, shares: dict = None) -> dict:
     """Fields to store when a new plan is generated. The old snapshot only
     moves into previous_plan_snapshot when something genuinely changed since
     it was taken, so regenerating with no progress can't erase a real
     comparison."""
-    new_snapshot = build_snapshot(state, allocation)
+    new_snapshot = build_snapshot(state, allocation, shares)
     old_snapshot = state.plan_snapshot or {}
 
     if old_snapshot and _state_key(old_snapshot) != _state_key(new_snapshot):
@@ -51,7 +56,7 @@ def snapshot_update(state: StateVector, allocation: Allocation) -> dict:
     return {"plan_snapshot": new_snapshot}
 
 
-def compute_adaptation(state: StateVector) -> dict:
+def compute_adaptation(state: StateVector, live_shares: dict = None) -> dict:
     live = current_scores(state)
     snap = state.plan_snapshot or {}
     prev = state.previous_plan_snapshot or {}
@@ -103,4 +108,24 @@ def compute_adaptation(state: StateVector) -> dict:
                 {"agent": agent, "before": hours_before, "after": hours_now, "note": note}
             )
 
-    return {"progress": progress, "reallocation": reallocation}
+    result = {"progress": progress, "reallocation": reallocation}
+
+    # 3) Share of the week if the plan were rebuilt now vs when this plan was built.
+    # Only included when the caller passes live shares (the dashboard does).
+    if live_shares is not None:
+        share_shifts = []
+        snap_shares = snap.get("shares") or {}
+        same_setup = (
+            snap.get("role") == state.target_role and snap.get("hours") == state.available_hours
+        )
+        if snap_shares and same_setup:
+            for agent, now in live_shares.items():
+                before = snap_shares.get(agent)
+                if before is None or abs(now - before) < SHARE_SHIFT_MIN:
+                    continue
+                share_shifts.append(
+                    {"agent": agent, "before": before, "after": now, "change": round(now - before, 1)}
+                )
+        result["share_shifts"] = share_shifts
+
+    return result

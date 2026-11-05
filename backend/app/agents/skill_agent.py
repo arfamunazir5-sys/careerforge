@@ -37,7 +37,7 @@ def get_bid(state: StateVector) -> Bid:
     if state.resume_score < 70:
         reasons.append("resume score is below target")
     if state.streak_count >= 2:
-        reasons.append(f"{state.streak_count}-week streak, momentum worth continuing")
+        reasons.append(f"{state.streak_count} tasks completed in a row, momentum worth continuing")
     reasons.append(f"next skill to learn is '{state.skill_progress.next_skill}'")
 
     return Bid(

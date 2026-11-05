@@ -10,7 +10,7 @@ from app.analysis.portfolio_scanner import scan_portfolio, PortfolioScanError
 from app.analysis.skill_graph import get_next_skill, get_full_chain
 from app.agents.role_weights import ROLE_WEIGHTS
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
-from app.agents.coordinator import allocate
+from app.agents.coordinator import allocate, compute_shares
 from app.plan.plan_generator import generate_plan
 from app.plan.plan_store import save_plan, load_plan, clear_plan
 from app.tracker.progress_tracker import mark_task
@@ -92,7 +92,7 @@ def create_plan():
     allocation = allocate(state, _get_bids(state))
     plan = generate_plan(state, allocation)
     save_plan(plan)
-    update_state_fields(snapshot_update(state, allocation))
+    update_state_fields(snapshot_update(state, allocation, compute_shares(state, _get_bids(state))))
     return plan
 
 
@@ -157,6 +157,7 @@ def update_profile(payload: ProfileUpdateRequest):
     updates = {
         "target_role": payload.target_role,
         "available_hours": payload.available_hours,
+        "profile_completed": True,
         "skill_progress": {
             "completed_skills": state.skill_progress.completed_skills,
             "next_skill": next_skill,
@@ -165,6 +166,7 @@ def update_profile(payload: ProfileUpdateRequest):
     if payload.target_role != state.target_role:
         # The resume notes and in-progress skill tasks belonged to the old role.
         updates["resume_notes"] = ""
+        updates["resume_details"] = {}
         updates["skill_task_progress"] = 0
     update_state_fields(updates)
     return get_current_state()
@@ -187,6 +189,7 @@ def read_dashboard():
     )
 
     biggest_opportunity = compute_biggest_opportunity(state)
+    shares = compute_shares(state, bids)
 
     return {
         "career_health": career_health,
@@ -194,7 +197,8 @@ def read_dashboard():
         "biggest_opportunity": biggest_opportunity,
         "bids": bids,
         "allocation": allocation,
-        "adaptation": compute_adaptation(state),
+        "adaptation": compute_adaptation(state, shares),
+        "allocation_shares": shares,
     },
 
 @app.post("/analyze-resume")
@@ -205,7 +209,16 @@ def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
         resume_note = f"Missing from resume: {', '.join(result.missing_skills)}"
     else:
         resume_note = "Resume covers the key skills for this role"
-    update_state_fields({"resume_score": result.resume_score, "resume_notes": resume_note})
+    update_state_fields({
+        "resume_score": result.resume_score,
+        "resume_notes": resume_note,
+        "resume_details": {
+            "role": payload.target_role,
+            "missing_skills": result.missing_skills,
+            "weak_sections": result.weak_sections,
+            "keyword_gaps": result.keyword_gaps,
+        },
+    })
     return result
 
 
@@ -216,7 +229,15 @@ def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
     except PortfolioScanError as e:
         raise HTTPException(status_code=e.status_code, detail=str(e))
     portfolio_note = "; ".join(result.notes) if result.notes else "Portfolio scan complete"
-    update_state_fields({"portfolio_score": result.portfolio_score, "portfolio_notes": portfolio_note})
+    update_state_fields({
+        "portfolio_score": result.portfolio_score,
+        "portfolio_notes": portfolio_note,
+        "portfolio_details": {
+            "repo_count": result.repo_count,
+            "readme_ratio": result.readme_ratio,
+            "notes": result.notes,
+        },
+    })
     return result
 
 

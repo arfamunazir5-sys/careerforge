@@ -48,3 +48,15 @@ def allocate(state: StateVector, bids: List[Bid]) -> Allocation:
     ]
 
     return Allocation(week_number=state.week_number, allocations=allocations)
+
+
+def compute_shares(state: StateVector, bids: List[Bid]) -> dict:
+    """Each agent's unrounded share of the week, in percent (one decimal).
+    Same math as allocate(), before whole-hour rounding, so small changes in
+    scores are visible even when the whole-hour split does not move."""
+    role_weights = get_weights_for_role(state.target_role)
+    combined = {b.agent: b.bid_score * role_weights.get(b.agent, 0.25) for b in bids}
+    total = sum(combined.values())
+    if total == 0:
+        return {b.agent: round(100 / len(bids), 1) for b in bids}
+    return {agent: round(score / total * 100, 1) for agent, score in combined.items()}

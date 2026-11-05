@@ -1,0 +1,35 @@
+/* sample-data banner */
+.sd-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cf-space-3);
+  flex-wrap: wrap;
+  background: var(--cf-info-soft);
+  color: var(--cf-info);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  padding: var(--cf-space-3) var(--cf-space-4);
+  margin-bottom: var(--cf-space-3);
+  font-family: var(--cf-font);
+  font-size: var(--cf-text-sm);
+  line-height: 1.5;
+}
+
+/* allocation bars */
+.p2-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--cf-text-xs);
+  color: var(--cf-text-muted);
+  margin: var(--cf-space-2) 0 3px;
+}
+.p2-bar-label:first-of-type { margin-top: 0; }
+
+/* analysis card */
+.p2-block + .p2-block { border-top: 1px solid var(--cf-border); margin-top: var(--cf-space-4); padding-top: var(--cf-space-4); }
+.p2-block-head { display: flex; align-items: center; gap: var(--cf-space-2); margin-bottom: var(--cf-space-2); }
+.p2-label { margin: var(--cf-space-3) 0 var(--cf-space-1); font-size: var(--cf-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--cf-text-faint); }
+.p2-chips { display: flex; flex-wrap: wrap; gap: var(--cf-space-2); }
+.p2-text { margin: 0; font-size: var(--cf-text-sm); color: var(--cf-text-muted); line-height: 1.55; }
+.p2-list { margin: var(--cf-space-2) 0 0; padding-left: 20px; font-size: var(--cf-text-sm); color: var(--cf-text-muted); line-height: 1.55; }
