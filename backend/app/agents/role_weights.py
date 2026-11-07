@@ -17,6 +17,24 @@ ROLE_WEIGHTS = {
         "networking": 0.15,
         "interview_prep": 0.20,
     },
+    "ml_engineer": {
+        "skill_building": 0.40,
+        "portfolio": 0.30,
+        "networking": 0.10,
+        "interview_prep": 0.20,
+    },
+    "cloud_devops": {
+        "skill_building": 0.40,
+        "portfolio": 0.25,
+        "networking": 0.15,
+        "interview_prep": 0.20,
+    },
+    "cybersecurity": {
+        "skill_building": 0.40,
+        "portfolio": 0.20,
+        "networking": 0.20,
+        "interview_prep": 0.20,
+    },
 }
 
 DEFAULT_WEIGHTS = {

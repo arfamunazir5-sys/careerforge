@@ -5,6 +5,7 @@ import SkillPathV2 from "../components/SkillPathV2";
 import AdaptationPanelV2 from "../components/AdaptationPanelV2";
 import AnalysisCard from "../components/AnalysisCard";
 import AssessmentCard from "../components/AssessmentCard";
+import RoleSimulator from "../components/RoleSimulator";
 import SampleDataBanner from "../components/SampleDataBanner";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
@@ -178,6 +179,8 @@ function CommandCenterPage({ refreshKey }) {
         </Card>
 
         <AdaptationPanelV2 adaptation={adaptation} />
+
+        <RoleSimulator refreshKey={refreshKey} />
 
         <SkillPathV2 refreshKey={refreshKey} />
       </div>

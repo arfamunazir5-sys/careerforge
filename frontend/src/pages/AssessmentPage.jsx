@@ -9,12 +9,7 @@ import { SkeletonCard } from "../ui/Skeleton";
 import "../components/Phase2.css";
 import "../components/Phase3.css";
 import "./PagesV2.css";
-
-const ROLE_LABELS = {
-  swe_backend: "Backend Developer",
-  data_analyst: "Data Analyst",
-  frontend_dev: "Frontend Developer",
-};
+import { ROLE_LABELS } from "../roles";
 
 function QuestionBlock({ question, name, value, onChange }) {
   return (

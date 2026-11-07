@@ -7,6 +7,9 @@ ROLE_KEYWORDS = {
     "swe_backend": ["python", "flask", "fastapi", "sql", "rest api", "docker", "git"],
     "data_analyst": ["python", "sql", "excel", "power bi", "statistics", "pandas", "tableau"],
     "frontend_dev": ["javascript", "react", "html", "css", "git", "responsive design"],
+    "ml_engineer": ["python", "pandas", "numpy", "scikit-learn", "machine learning", "tensorflow", "pytorch"],
+    "cloud_devops": ["linux", "docker", "kubernetes", "aws", "ci/cd", "terraform", "git"],
+    "cybersecurity": ["linux", "networking", "python", "owasp", "wireshark", "nmap", "incident response"],
 }
 
 # Other common ways people write the same skill.
@@ -15,6 +18,9 @@ SKILL_ALIASES = {
     "rest api": ["restful"],
     "react": ["reactjs"],
     "power bi": ["powerbi"],
+    "scikit-learn": ["sklearn"],
+    "aws": ["amazon web services"],
+    "ci/cd": ["cicd", "github actions", "jenkins"],
 }
 
 ACTION_KEYWORDS = ["led", "built", "developed", "designed", "implemented", "improved", "optimized", "achieved"]

@@ -1,0 +1,13 @@
+.rs-list > * + * { margin-top: var(--cf-space-3); }
+.rs-row {
+  padding: var(--cf-space-3);
+  border: 1px solid var(--cf-border);
+  border-radius: var(--cf-radius-sm);
+  background: var(--cf-surface);
+}
+.rs-row.current { border-color: var(--cf-primary); background: var(--cf-primary-soft); }
+.rs-head { display: flex; align-items: center; gap: var(--cf-space-2); flex-wrap: wrap; margin-bottom: var(--cf-space-2); font-size: var(--cf-text-sm); color: var(--cf-text); }
+.rs-health { margin-left: auto; font-size: var(--cf-text-xs); font-weight: 600; color: var(--cf-text-muted); }
+.rs-bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; border: 1px solid var(--cf-border); }
+.rs-seg { height: 100%; transition: width 0.4s ease; }
+.rs-hours { display: flex; flex-wrap: wrap; gap: var(--cf-space-3); margin-top: var(--cf-space-2); font-size: var(--cf-text-xs); color: var(--cf-text-muted); }

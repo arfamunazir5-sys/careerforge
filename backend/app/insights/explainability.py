@@ -2,6 +2,7 @@ from typing import List
 from app.state.schemas import StateVector
 from app.agents.schemas import Bid, Allocation
 from app.agents.role_weights import get_weights_for_role
+from app.roles import ROLE_LABELS
 from app.agents.coordinator import compute_shares
 from app.insights.schemas import ExplainabilityResult, ExplanationItem
 
@@ -10,12 +11,6 @@ AGENT_LABELS = {
     "networking": "Networking",
     "portfolio": "Portfolio",
     "interview_prep": "Interview Prep",
-}
-
-ROLE_LABELS = {
-    "swe_backend": "Backend Developer",
-    "data_analyst": "Data Analyst",
-    "frontend_dev": "Frontend Developer",
 }
 
 # Only Resume and Portfolio currently have persisted analysis notes (Step 2/3) —

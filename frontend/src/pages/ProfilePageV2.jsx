@@ -4,12 +4,8 @@ import { api } from "../api/client";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import "./PagesV2.css";
-
-const ROLE_OPTIONS = [
-  { value: "swe_backend", label: "Backend Developer" },
-  { value: "data_analyst", label: "Data Analyst" },
-  { value: "frontend_dev", label: "Frontend Developer" },
-];
+import { ROLE_OPTIONS } from "../roles";
+import { rolesApi } from "../api/roles";
 
 const GITHUB_RE = /^(?=.{1,39}$)[A-Za-z0-9]+(-[A-Za-z0-9]+)*$/;
 
@@ -20,6 +16,7 @@ function looksLikeSleepingServer(message) {
 
 function ProfilePageV2({ onProfileComplete }) {
   const navigate = useNavigate();
+  const [roleOptions, setRoleOptions] = useState(ROLE_OPTIONS);
   const [targetRole, setTargetRole] = useState("swe_backend");
   const [availableHours, setAvailableHours] = useState(10);
   const [resumeText, setResumeText] = useState("");
@@ -33,6 +30,16 @@ function ProfilePageV2({ onProfileComplete }) {
   const [stepIdx, setStepIdx] = useState(-1);
   const [warnings, setWarnings] = useState([]);
   const [failedSteps, setFailedSteps] = useState([]);
+
+  // Ask the backend for the live role list (falls back to the built-in one).
+  useEffect(() => {
+    rolesApi
+      .getRoles()
+      .then((list) => {
+        if (Array.isArray(list) && list.length > 0) setRoleOptions(list);
+      })
+      .catch(() => {});
+  }, []);
 
   // Prefill from saved state so returning to this page shows what you
   // actually chose, not the hardcoded defaults.
@@ -157,7 +164,7 @@ function ProfilePageV2({ onProfileComplete }) {
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
               >
-                {ROLE_OPTIONS.map((r) => (
+                {roleOptions.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
               </select>

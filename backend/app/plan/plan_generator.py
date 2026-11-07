@@ -2,6 +2,7 @@ from typing import List
 from app.state.schemas import StateVector
 from app.agents.schemas import Allocation
 from app.plan.schemas import Task, WeeklyPlan
+from app.plan.role_tasks import templates_for
 
 TASK_TEMPLATES = {
     "skill_building": [
@@ -27,12 +28,12 @@ TASK_TEMPLATES = {
 }
 
 
-def _split_into_tasks(agent: str, hours: int, next_skill: str) -> List[dict]:
+def _split_into_tasks(agent: str, hours: int, next_skill: str, role: str = "") -> List[dict]:
     """Breaks an agent's allocated hours into ~2-hour task chunks,
     cycling through that agent's templates."""
     if hours <= 0:
         return []
-    templates = TASK_TEMPLATES[agent]
+    templates = templates_for(role, agent, TASK_TEMPLATES)
     tasks = []
     remaining = hours
     i = 0
@@ -53,6 +54,7 @@ def generate_plan(state: StateVector, allocation: Allocation) -> WeeklyPlan:
             agent_allocation.agent,
             agent_allocation.hours,
             state.skill_progress.next_skill,
+            state.target_role,
         )
         for t in raw_tasks:
             all_tasks.append(

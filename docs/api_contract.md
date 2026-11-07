@@ -29,8 +29,12 @@ Interactive docs: /docs
 | GET | /skill-progress | Completed and next skills for the current role |
 | GET | /self-assessment/questions | Interview quiz (for the current role) and networking questions, without answers |
 | POST | /self-assessment | Score the quiz, networking check and confidence, and update the state |
+| GET | /roles | Supported roles: `[{ "value", "label" }]` |
+| GET | /simulate-roles | Read-only: hours, shares and health score under each role, using current scores |
 
-Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`.
+Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`, `ml_engineer`, `cloud_devops`, `cybersecurity` (see GET /roles). Every role has its own weights, skill chain, resume keywords, interview quiz and, for portfolio and interview tasks, role-specific task templates.
+
+GET /simulate-roles returns one entry per role: `{ role, label, is_current, hours, shares, health, next_skill }`. It reuses the current scores and hours with each role's weights and skill chain, and never writes state. Resume and quiz results were measured for the current role, so other roles are estimates.
 Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
 
 ## state_vector (GET /state, and the response of POST /update-profile)

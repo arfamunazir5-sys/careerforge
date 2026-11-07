@@ -4,12 +4,7 @@ import { api } from "../api/client";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import "./Phase2.css";
-
-const ROLE_LABELS = {
-  swe_backend: "Backend Developer",
-  data_analyst: "Data Analyst",
-  frontend_dev: "Frontend Developer",
-};
+import { ROLE_LABELS } from "../roles";
 
 function AnalysisCard({ refreshKey }) {
   const [state, setState] = useState(null);

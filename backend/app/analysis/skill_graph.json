@@ -1,5 +1,8 @@
 {
   "swe_backend": ["python", "flask", "rest_apis", "databases", "docker", "deployment"],
   "data_analyst": ["python", "sql", "statistics", "pandas", "power_bi", "storytelling"],
-  "frontend_dev": ["html_css", "javascript", "react", "state_management", "responsive_design", "deployment"]
+  "frontend_dev": ["html_css", "javascript", "react", "state_management", "responsive_design", "deployment"],
+  "ml_engineer": ["python", "numpy_pandas", "statistics", "ml_fundamentals", "deep_learning", "model_deployment"],
+  "cloud_devops": ["linux", "git_ci", "docker", "cloud_basics", "kubernetes", "infrastructure_as_code"],
+  "cybersecurity": ["network_fundamentals", "linux", "security_fundamentals", "web_security", "security_tools", "incident_response"]
 }
