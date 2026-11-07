@@ -17,6 +17,7 @@ from app.analysis.self_assessment import (
 from app.analysis.skill_graph import get_next_skill, get_full_chain
 from app.roles import role_options
 from app.insights.role_simulator import simulate_all_roles
+from app.insights.weekly import summarize_week, close_week
 from app.agents.role_weights import ROLE_WEIGHTS
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate, compute_shares
@@ -32,6 +33,11 @@ from app.insights.adaptation import snapshot_update, compute_adaptation
 class ProfileUpdateRequest(BaseModel):
     target_role: str
     available_hours: int
+
+
+class NextWeekRequest(BaseModel):
+    available_hours: Optional[int] = None
+    confidence: Optional[int] = None
 
 
 class AssessmentRequest(BaseModel):
@@ -101,14 +107,52 @@ def read_allocation():
     return allocate(state, _get_bids(state))
 
 
+def _build_and_store_plan(state):
+    """Builds this week's plan (with the reasoning for each task), saves it and
+    stores the allocation snapshot used by the Adaptation panel."""
+    bids = _get_bids(state)
+    allocation = allocate(state, bids)
+    explanations = generate_explanations(state, bids, allocation)
+    why_by_agent = {item.agent: item.explanation for item in explanations.items}
+    plan = generate_plan(state, allocation, why_by_agent)
+    save_plan(plan)
+    update_state_fields(snapshot_update(state, allocation, compute_shares(state, bids)))
+    return plan
+
+
 @app.post("/generate-plan")
 def create_plan():
+    return _build_and_store_plan(get_current_state())
+
+
+@app.get("/week-summary")
+def read_week_summary():
     state = get_current_state()
-    allocation = allocate(state, _get_bids(state))
-    plan = generate_plan(state, allocation)
-    save_plan(plan)
-    update_state_fields(snapshot_update(state, allocation, compute_shares(state, _get_bids(state))))
-    return plan
+    try:
+        plan = load_plan()
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="No weekly plan yet. Call POST /generate-plan first.")
+    return summarize_week(state, plan)
+
+
+@app.post("/next-week")
+def start_next_week(payload: NextWeekRequest):
+    if payload.available_hours is not None and not 1 <= payload.available_hours <= 80:
+        raise HTTPException(status_code=422, detail="available_hours must be between 1 and 80.")
+    if payload.confidence is not None and not 1 <= payload.confidence <= 10:
+        raise HTTPException(status_code=422, detail="confidence must be between 1 and 10.")
+
+    state = get_current_state()
+    try:
+        plan = load_plan()
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="No weekly plan yet. Call POST /generate-plan first.")
+
+    updates, summary = close_week(state, plan, payload.available_hours, payload.confidence)
+    update_state_fields(updates)
+    new_state = get_current_state()
+    new_plan = _build_and_store_plan(new_state)
+    return {"closed": summary, "week_number": new_state.week_number, "plan": new_plan}
 
 
 @app.get("/plan")

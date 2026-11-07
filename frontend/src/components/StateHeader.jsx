@@ -22,6 +22,7 @@ function StateHeader({ refreshKey }) {
         <ScoreItem label="Networking" value={state.networking_score} />
         <ScoreItem label="Interview" value={state.interview_score} />
         <ScoreItem label="Task streak" value={state.streak_count} />
+        <ScoreItem label="Week" value={state.week_number} />
       </div>
     </header>
   );

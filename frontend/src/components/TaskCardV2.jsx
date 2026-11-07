@@ -1,6 +1,7 @@
 import Badge from "../ui/Badge";
 import { agentMeta } from "../ui/agentMeta";
 import "../pages/PagesV2.css";
+import "./Phase5.css";
 
 function TaskCardV2({ task, onAction, disabled = false }) {
   const meta = agentMeta(task.agent);
@@ -14,6 +15,12 @@ function TaskCardV2({ task, onAction, disabled = false }) {
           <Badge agent={task.agent} />
           <span className="tc2-hours">{task.hours}h</span>
         </div>
+        {task.why && (
+          <details className="tc2-why">
+            <summary>Why this task?</summary>
+            <p>{task.why}</p>
+          </details>
+        )}
       </div>
 
       {isPending ? (

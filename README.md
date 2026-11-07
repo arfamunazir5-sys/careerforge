@@ -33,7 +33,7 @@ CareerForge treats **career growth as a resource-allocation problem**. Four spec
 3. **Bidding:** each agent computes a bid from the user's current state.
 4. **Allocation:** the coordinator multiplies each bid by a role weight and splits the weekly hours.
 5. **Plan:** the allocation is turned into concrete weekly tasks, exportable to a calendar (`.ics`).
-6. **Feedback:** completing a task raises the relevant domain score; ignoring tasks ends the streak.
+6. **Feedback:** completing a task raises the relevant domain score; ignoring tasks ends the streak. A weekly check-in closes the week, logs the results and builds the next plan, and every task can explain why it is in the plan.
 7. **Adaptation:** regenerating the plan shows a before/after view, but only when something really changed.
 8. **Explainability:** a Career Health Score, a Biggest Opportunity card, a requested-vs-allocated chart and plain-language reasons explain every decision.
 

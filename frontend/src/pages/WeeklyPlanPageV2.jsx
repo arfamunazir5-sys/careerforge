@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sparkles, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 import { api, API_BASE_URL } from "../api/client";
 import TaskCardV2 from "../components/TaskCardV2";
 import Card from "../ui/Card";
@@ -292,6 +293,11 @@ function WeeklyPlanPageV2({ onTaskUpdate }) {
             })}
           </div>
         )}
+        <Card title="Finish this week" subtitle="Close the week to log your results and build next week's plan">
+          <Link className="btn-secondary" to="/checkin">
+            Open weekly check-in
+          </Link>
+        </Card>
       </div>
     </div>
   );

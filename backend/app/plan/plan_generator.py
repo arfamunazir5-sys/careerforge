@@ -46,7 +46,17 @@ def _split_into_tasks(agent: str, hours: int, next_skill: str, role: str = "") -
     return tasks
 
 
-def generate_plan(state: StateVector, allocation: Allocation) -> WeeklyPlan:
+def _task_why(agent: str, explanation: str, next_skill: str) -> str:
+    """The reasoning shown under a task: the agent's explanation from when the
+    plan was built, plus the roadmap skill for skill-building tasks."""
+    text = (explanation or "").strip()
+    if agent == "skill_building":
+        text = f"{text} This task targets '{next_skill}', the next skill on your roadmap.".strip()
+    return text
+
+
+def generate_plan(state: StateVector, allocation: Allocation, why_by_agent: dict = None) -> WeeklyPlan:
+    why_by_agent = why_by_agent or {}
     all_tasks = []
     task_counter = 1
     for agent_allocation in allocation.allocations:
@@ -64,6 +74,7 @@ def generate_plan(state: StateVector, allocation: Allocation) -> WeeklyPlan:
                     title=t["title"],
                     hours=t["hours"],
                     status="pending",
+                    why=_task_why(t["agent"], why_by_agent.get(t["agent"], ""), state.skill_progress.next_skill),
                 )
             )
             task_counter += 1

@@ -31,6 +31,8 @@ Interactive docs: /docs
 | POST | /self-assessment | Score the quiz, networking check and confidence, and update the state |
 | GET | /roles | Supported roles: `[{ "value", "label" }]` |
 | GET | /simulate-roles | Read-only: hours, shares and health score under each role, using current scores |
+| GET | /week-summary | Done, ignored and pending tasks, hours and score changes for the current week (404 without a plan) |
+| POST | /next-week | Close the current week, advance `week_number`, build a fresh plan |
 
 Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`, `ml_engineer`, `cloud_devops`, `cybersecurity` (see GET /roles). Every role has its own weights, skill chain, resume keywords, interview quiz and, for portfolio and interview tasks, role-specific task templates.
 
@@ -67,7 +69,8 @@ Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
   "profile_completed": false,
   "resume_details": {},
   "portfolio_details": {},
-  "assessment": {}
+  "assessment": {},
+  "week_history": []
 }
 ```
 
@@ -116,12 +119,14 @@ The hours always sum to `available_hours`.
 {
   "week_number": 1,
   "tasks": [
-    { "id": "t1", "agent": "skill_building", "title": "Complete a tutorial/module on html_css", "hours": 2, "status": "pending" }
+    { "id": "t1", "agent": "skill_building", "title": "Complete a tutorial/module on html_css", "hours": 2, "status": "pending", "why": "Skill Building received 4h this week. ..." }
   ]
 }
 ```
 
-`status` is `pending`, `done` or `ignored`. Tasks carry no date. The calendar export places task N on weekday `N mod 7` (Monday first) at 18:00 for `hours` hours, and the UI's "By day" view uses the same rule.
+`status` is `pending`, `done` or `ignored`. `why` is the reasoning captured when the plan was built (empty for plans saved before it existed).
+
+GET /week-summary returns `{ week_number, tasks_total, done, ignored, pending, hours_total, hours_done, completion_pct, score_changes }`. POST /next-week takes optional `available_hours` (1-80) and `confidence` (1-10), appends the closed week to `week_history` (last 12 weeks), advances `week_number`, sets `completed_tasks_last_week` and `ignored_tasks_last_week` to the closed week's counts, builds a fresh plan and returns `{ closed, week_number, plan }`. Pending tasks are not carried over. Tasks carry no date. The calendar export places task N on weekday `N mod 7` (Monday first) at 18:00 for `hours` hours, and the UI's "By day" view uses the same rule.
 
 ## task update (POST /tasks/{task_id}/complete and /ignore)
 

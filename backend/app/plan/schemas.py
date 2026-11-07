@@ -8,6 +8,7 @@ class Task(BaseModel):
     title: str
     hours: int
     status: str  # "pending", "done", "ignored"
+    why: str = ""  # reasoning captured when the plan was built
 
 
 class WeeklyPlan(BaseModel):
