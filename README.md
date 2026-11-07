@@ -28,7 +28,7 @@ CareerForge treats **career growth as a resource-allocation problem**. Four spec
 
 ## What it does
 
-1. **Profile input:** the user chooses a target role and weekly hours, and optionally pastes a resume and a GitHub username.
+1. **Profile input:** the user chooses a target role and weekly hours, and optionally pastes a resume and a GitHub username. An optional self-assessment (a role-specific interview quiz, a networking check and a confidence rating) supplies the scores a resume or GitHub cannot.
 2. **Analysis:** the resume is checked against a per-role keyword list (whole-word matching), and public GitHub repositories are scanned. Both produce real scores.
 3. **Bidding:** each agent computes a bid from the user's current state.
 4. **Allocation:** the coordinator multiplies each bid by a role weight and splits the weekly hours.

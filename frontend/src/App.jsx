@@ -7,6 +7,7 @@ import DashboardPage from "./pages/DashboardPage";
 import CommandCenterPage from "./pages/CommandCenterPage";
 import ProfilePage from "./pages/ProfilePage";
 import ProfilePageV2 from "./pages/ProfilePageV2";
+import AssessmentPage from "./pages/AssessmentPage";
 import WakeUpBanner from "./ui/WakeUpBanner";
 import ErrorBoundary from "./ui/ErrorBoundary";
 import EmptyState from "./ui/EmptyState";
@@ -22,6 +23,7 @@ function RoutedPages({ refreshKey, triggerRefresh }) {
       <Routes>
         <Route path="/" element={<HomePageV2 refreshKey={refreshKey} onTaskUpdate={triggerRefresh} />} />
         <Route path="/profile" element={<ProfilePageV2 onProfileComplete={triggerRefresh} />} />
+        <Route path="/assessment" element={<AssessmentPage onAssessmentComplete={triggerRefresh} />} />
         <Route path="/dashboard" element={<CommandCenterPage refreshKey={refreshKey} />} />
         <Route path="/plan-classic" element={<HomePage refreshKey={refreshKey} onTaskUpdate={triggerRefresh} />} />
         <Route path="/profile-classic" element={<ProfilePage onProfileComplete={triggerRefresh} />} />

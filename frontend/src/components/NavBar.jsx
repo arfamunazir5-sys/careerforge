@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { CalendarCheck, User, LayoutDashboard } from "lucide-react";
+import { CalendarCheck, User, ClipboardCheck, LayoutDashboard } from "lucide-react";
 
 const linkClass = ({ isActive }) => (isActive ? "nav-link active" : "nav-link");
 
@@ -15,6 +15,10 @@ function NavBar() {
         <NavLink to="/profile" className={linkClass}>
           <User size={16} aria-hidden="true" />
           <span>Profile</span>
+        </NavLink>
+        <NavLink to="/assessment" className={linkClass}>
+          <ClipboardCheck size={16} aria-hidden="true" />
+          <span>Assessment</span>
         </NavLink>
         <NavLink to="/dashboard" className={linkClass}>
           <LayoutDashboard size={16} aria-hidden="true" />

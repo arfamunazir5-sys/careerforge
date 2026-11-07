@@ -1,4 +1,5 @@
 import os
+from typing import Dict, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,12 @@ from app.state.state_builder import get_current_state, reset_state, update_state
 from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
 from app.analysis.resume_analyzer import analyze_resume
 from app.analysis.portfolio_scanner import scan_portfolio, PortfolioScanError
+from app.analysis.self_assessment import (
+    AssessmentError,
+    public_questions,
+    score_interview,
+    score_networking,
+)
 from app.analysis.skill_graph import get_next_skill, get_full_chain
 from app.agents.role_weights import ROLE_WEIGHTS
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
@@ -23,6 +30,12 @@ from app.insights.adaptation import snapshot_update, compute_adaptation
 class ProfileUpdateRequest(BaseModel):
     target_role: str
     available_hours: int
+
+
+class AssessmentRequest(BaseModel):
+    interview_answers: Optional[Dict[str, int]] = None
+    networking_answers: Optional[Dict[str, int]] = None
+    confidence: Optional[int] = None
 
 app = FastAPI()
 app.add_middleware(
@@ -164,12 +177,74 @@ def update_profile(payload: ProfileUpdateRequest):
         },
     }
     if payload.target_role != state.target_role:
-        # The resume notes and in-progress skill tasks belonged to the old role.
+        # The resume notes, quiz result and in-progress skill tasks belonged to the old role.
         updates["resume_notes"] = ""
         updates["resume_details"] = {}
         updates["skill_task_progress"] = 0
+        assessment = dict(state.assessment or {})
+        assessment.pop("interview", None)
+        updates["assessment"] = assessment
     update_state_fields(updates)
     return get_current_state()
+
+
+@app.get("/self-assessment/questions")
+def read_assessment_questions():
+    state = get_current_state()
+    try:
+        return public_questions(state.target_role)
+    except AssessmentError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
+@app.post("/self-assessment")
+def submit_assessment(payload: AssessmentRequest):
+    if (
+        payload.interview_answers is None
+        and payload.networking_answers is None
+        and payload.confidence is None
+    ):
+        raise HTTPException(status_code=422, detail="Nothing to assess. Answer at least one section.")
+
+    state = get_current_state()
+    updates = {}
+    assessment = dict(state.assessment or {})
+    new_scores = {}
+    summary = {"interview": None, "networking": None, "confidence": None}
+
+    try:
+        if payload.interview_answers is not None:
+            result = score_interview(state.target_role, payload.interview_answers)
+            updates["interview_score"] = result["score"]
+            new_scores["Interview"] = result["score"]
+            assessment["interview"] = {"role": state.target_role, **result}
+            summary["interview"] = result
+        if payload.networking_answers is not None:
+            result = score_networking(payload.networking_answers)
+            updates["networking_score"] = result["score"]
+            new_scores["Networking"] = result["score"]
+            assessment["networking"] = result
+            summary["networking"] = result
+    except AssessmentError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    if payload.confidence is not None:
+        if not 1 <= payload.confidence <= 10:
+            raise HTTPException(status_code=422, detail="confidence must be between 1 and 10.")
+        updates["confidence"] = payload.confidence
+        assessment["confidence"] = payload.confidence
+        summary["confidence"] = payload.confidence
+
+    # A measured score is not progress: move the plan snapshot with it so the
+    # Adaptation panel only reports progress that came from completed tasks.
+    snapshot = dict(state.plan_snapshot or {})
+    if snapshot.get("scores") and new_scores:
+        snapshot["scores"] = {**snapshot["scores"], **new_scores}
+        updates["plan_snapshot"] = snapshot
+
+    updates["assessment"] = assessment
+    update_state_fields(updates)
+    return summary
 
 @app.get("/dashboard")
 def read_dashboard():

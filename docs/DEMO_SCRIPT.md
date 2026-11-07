@@ -15,7 +15,7 @@
 "Career advice usually treats every activity as equally important. CareerForge treats it as a resource-allocation problem: four agents compete for the user's limited weekly hours, and the plan adapts as they make progress."
 
 **0:20 - 1:00 Profile (Profile page).**
-Pick the target role, set hours, paste the resume, enter the GitHub username, click "Analyze Me & Build My Plan". While the steps tick: "This is real input. The resume and GitHub scan produce scores, and those scores feed the agents' bids."
+Pick the target role, set hours, paste the resume, enter the GitHub username, click "Analyze Me & Build My Plan". (Optional, 20 seconds: open Assessment, answer the quiz and save, to show the Interview and Networking scores coming from the user.) While the steps tick: "This is real input. The resume and GitHub scan produce scores, and those scores feed the agents' bids."
 
 **1:00 - 1:45 Command Center (opens automatically).**
 - Career Health Score and the Biggest Opportunity card.

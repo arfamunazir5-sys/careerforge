@@ -29,3 +29,4 @@ class StateVector(BaseModel):
     profile_completed: bool = False
     resume_details: dict = {}
     portfolio_details: dict = {}
+    assessment: dict = {}

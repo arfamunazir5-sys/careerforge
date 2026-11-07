@@ -27,6 +27,8 @@ Interactive docs: /docs
 | GET | /dashboard | Everything the Command Center needs |
 | GET | /skill-graph/{target_role} | Skill chain for a role |
 | GET | /skill-progress | Completed and next skills for the current role |
+| GET | /self-assessment/questions | Interview quiz (for the current role) and networking questions, without answers |
+| POST | /self-assessment | Score the quiz, networking check and confidence, and update the state |
 
 Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`.
 Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
@@ -60,13 +62,26 @@ Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
   "previous_plan_snapshot": {},
   "profile_completed": false,
   "resume_details": {},
-  "portfolio_details": {}
+  "portfolio_details": {},
+  "assessment": {}
 }
 ```
 
 `skill_task_progress` counts completed skill tasks toward the current skill (3 per skill).
 `profile_completed` is false until POST /update-profile is called (the UI shows a sample-data notice). `resume_details` ({role, missing_skills, weak_sections, keyword_gaps}) and `portfolio_details` ({repo_count, readme_ratio, notes}) store the last analysis for display; a role change clears `resume_details`.
 `streak_count` counts tasks completed in a row (not weeks).
+`assessment` holds the last self-assessment: `interview` ({role, score, correct, total, missed_topics}), `networking` ({score}) and `confidence` (1-10). A role change clears `assessment.interview`.
+
+## self-assessment (GET /self-assessment/questions, POST /self-assessment)
+
+GET returns `{ "role", "interview": [{id, prompt, options}], "networking": [{id, prompt, options}] }` (no answer key). POST takes any of: `interview_answers` and `networking_answers` (maps of question id to the chosen option index; each section must be fully answered), and `confidence` (1-10).
+
+```json
+{ "interview": { "score": 67, "correct": 4, "total": 6, "missed_topics": ["Git basics"] },
+  "networking": { "score": 58 }, "confidence": 7 }
+```
+
+Scores replace `interview_score` and `networking_score`; confidence replaces `confidence`. Sections not sent are `null`. Errors: 422 for an empty request, a partly answered section, an unknown question id, an invalid option or confidence outside 1-10. The plan snapshot's scores are moved with the new values, so an assessment never appears as task progress.
 `plan_snapshot` is written by POST /generate-plan; `previous_plan_snapshot` holds the one before it and powers the Adaptation panel.
 
 ## bid (GET /bids returns a list of these)

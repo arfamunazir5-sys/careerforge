@@ -4,6 +4,7 @@ import AllocationCompetitionV2 from "../components/AllocationCompetitionV2";
 import SkillPathV2 from "../components/SkillPathV2";
 import AdaptationPanelV2 from "../components/AdaptationPanelV2";
 import AnalysisCard from "../components/AnalysisCard";
+import AssessmentCard from "../components/AssessmentCard";
 import SampleDataBanner from "../components/SampleDataBanner";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
@@ -126,7 +127,7 @@ function CommandCenterPage({ refreshKey }) {
 
         <Card
           title="Module scores"
-          subtitle="Resume and Portfolio come from your analysis. Networking and Interview are task-based estimates until you assess them."
+          subtitle="Resume and Portfolio come from your analysis. Interview and Networking come from your self-assessment, or are sample values until you take it."
         >
           <div className="cc-modules">
             {modules.map((m) => (
@@ -153,6 +154,8 @@ function CommandCenterPage({ refreshKey }) {
         )}
 
         <AnalysisCard refreshKey={refreshKey} />
+
+        <AssessmentCard refreshKey={refreshKey} />
 
         <AllocationCompetitionV2
           bids={bids}
