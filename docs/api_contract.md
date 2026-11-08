@@ -17,6 +17,7 @@ Interactive docs: /docs
 | POST | /analyze-resume | Analyse resume text, updates resume_score |
 | POST | /analyze-portfolio | Scan GitHub, updates portfolio_score |
 | POST | /extract-resume-text | Read the text of an uploaded PDF resume (multipart field `file`); nothing is stored |
+| POST | /portfolio-evidence | Score portfolio links and a short checklist for roles without a GitHub portfolio |
 | GET | /bids | The four agent bids |
 | GET | /allocate | Coordinator allocation |
 | POST | /generate-plan | Build and save the weekly plan, snapshot the allocation |
@@ -30,12 +31,12 @@ Interactive docs: /docs
 | GET | /skill-progress | Completed and next skills for the current role |
 | GET | /self-assessment/questions | Interview quiz (for the current role) and networking questions, without answers |
 | POST | /self-assessment | Score the quiz, networking check and confidence, and update the state |
-| GET | /roles | Supported roles: `[{ "value", "label" }]` |
+| GET | /roles | Supported roles: `[{ "value", "label", "portfolio_mode" }]` (`github` or `evidence`) |
 | GET | /simulate-roles | Read-only: hours, shares and health score under each role, using current scores |
 | GET | /week-summary | Done, ignored and pending tasks, hours and score changes for the current week (404 without a plan) |
 | POST | /next-week | Close the current week, advance `week_number`, build a fresh plan |
 
-Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`, `ml_engineer`, `cloud_devops`, `cybersecurity` (see GET /roles). Every role has its own weights, skill chain, resume keywords, interview quiz and, for portfolio and interview tasks, role-specific task templates.
+Allowed roles: `swe_backend`, `data_analyst`, `frontend_dev`, `ml_engineer`, `cloud_devops`, `cybersecurity` (portfolio mode `github`) and `ux_designer`, `business_analyst`, `digital_marketer`, `finance_analyst` (portfolio mode `evidence`). See GET /roles. Every role has its own weights, skill chain, resume keywords, interview quiz and, for portfolio and interview tasks, role-specific task templates.
 
 GET /simulate-roles returns one entry per role: `{ role, label, is_current, hours, shares, health, next_skill }`. It reuses the current scores and hours with each role's weights and skill chain, and never writes state. Resume and quiz results were measured for the current role, so other roles are estimates.
 Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
@@ -166,6 +167,18 @@ Request: `{ "resume_text": "...", "target_role": "swe_backend" }`
 ```
 
 Updates `resume_score` and `resume_notes` in the shared state. Resume score changes only through this endpoint.
+
+## portfolio_evidence (POST /portfolio-evidence)
+
+For roles whose `portfolio_mode` is `evidence` (GitHub does not apply). Request: `{ "links": ["behance.net/me"], "case_studies": 3, "has_results": true, "has_process": true, "recent_work": false }`.
+
+```json
+{ "score": 83, "notes": ["Add something from the last 6 months"],
+  "links": [{ "url": "https://behance.net/me", "platform": "Behance", "recognized": true }],
+  "case_studies": 3, "has_results": true, "has_process": true, "recent_work": false }
+```
+
+Score (0-100): links up to 25 (3 links for full marks), case studies up to 40 (4 for full marks), measurable results 15, process explained 10, recent work 10. Links are normalised, de-duplicated and checked for format and known platform; they are never opened, so the score is self-reported evidence. Updates `portfolio_score`, `portfolio_notes` and `portfolio_details` (`mode: "evidence"`). Errors: 422 for more than 5 links, a malformed link, case studies outside 0-20, or a role that uses the GitHub scan. POST /analyze-portfolio answers 422 for evidence roles. Changing between a `github` and an `evidence` role clears the portfolio details and sets the portfolio score back to 50.
 
 ## portfolio_scan (POST /analyze-portfolio)
 

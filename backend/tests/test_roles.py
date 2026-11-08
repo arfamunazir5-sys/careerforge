@@ -18,7 +18,7 @@ def state(c):
 
 def test_registry_matches_every_role_table():
     assert set(ROLE_LABELS) == set(ROLE_WEIGHTS) == set(ROLE_KEYWORDS) == set(INTERVIEW_BANK)
-    assert len(ROLES) == 6
+    assert len(ROLES) == 10
 
 
 @pytest.mark.parametrize("role", ROLES)

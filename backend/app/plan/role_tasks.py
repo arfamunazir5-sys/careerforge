@@ -45,6 +45,54 @@ ROLE_TASK_OVERRIDES = {
             "Review how you would respond to a security incident, step by step",
         ],
     },
+    "ux_designer": {
+        "portfolio": [
+            "Write up one case study: the problem, your process, the solution and the result",
+            "Add annotated before-and-after screens to your strongest project",
+            "Publish or update your portfolio (Behance, Dribbble, Figma or your own site)",
+        ],
+        "interview_prep": [
+            "Practise walking through one portfolio case study out loud, timed",
+            "Prepare answers on handling feedback and conflicting stakeholder needs",
+            "Review a real product and list 3 usability problems with your suggested fixes",
+        ],
+    },
+    "business_analyst": {
+        "portfolio": [
+            "Document a process you improved: the current state, the problems and the proposed change",
+            "Build a sample dashboard or report from a public dataset and explain the insights",
+            "Write a short requirements document or set of user stories for a real or imagined project",
+        ],
+        "interview_prep": [
+            "Practise explaining a past analysis from question to recommendation, timed",
+            "Work through 2 practice SQL or Excel questions",
+            "Prepare a story about handling disagreeing stakeholders (situation, action, result)",
+        ],
+    },
+    "digital_marketer": {
+        "portfolio": [
+            "Write up a campaign case study with the goal, channel, budget and measured results",
+            "Create a content sample: a blog post, an email sequence or a social media calendar",
+            "Run a free SEO or analytics audit of a small site and summarise your findings",
+        ],
+        "interview_prep": [
+            "Explain how you would measure the success of one campaign, timed",
+            "Prepare examples with real numbers (reach, conversion rate, cost per result)",
+            "Review one brand's marketing and prepare 3 improvement ideas",
+        ],
+    },
+    "finance_analyst": {
+        "portfolio": [
+            "Build a simple budget or three-statement model in Excel and document its assumptions",
+            "Write a one-page analysis of a public company with your conclusion",
+            "Create a variance analysis example comparing budget and actual results",
+        ],
+        "interview_prep": [
+            "Walk through a simple discounted cash flow valuation out loud, timed",
+            "Practise 2 accounting or Excel technical questions",
+            "Prepare a story about catching and fixing an error in a financial analysis",
+        ],
+    },
 }
 
 

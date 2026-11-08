@@ -10,6 +10,10 @@ ROLE_KEYWORDS = {
     "ml_engineer": ["python", "pandas", "numpy", "scikit-learn", "machine learning", "tensorflow", "pytorch"],
     "cloud_devops": ["linux", "docker", "kubernetes", "aws", "ci/cd", "terraform", "git"],
     "cybersecurity": ["linux", "networking", "python", "owasp", "wireshark", "nmap", "incident response"],
+    "ux_designer": ["figma", "user research", "wireframing", "prototyping", "usability testing", "design system", "accessibility"],
+    "business_analyst": ["sql", "excel", "requirements", "stakeholder", "process mapping", "dashboards", "user stories"],
+    "digital_marketer": ["seo", "google analytics", "content marketing", "social media", "email marketing", "paid ads", "a/b testing"],
+    "finance_analyst": ["excel", "financial modeling", "forecasting", "budgeting", "valuation", "variance analysis", "sql"],
 }
 
 # Other common ways people write the same skill.
@@ -21,6 +25,18 @@ SKILL_ALIASES = {
     "scikit-learn": ["sklearn"],
     "aws": ["amazon web services"],
     "ci/cd": ["cicd", "github actions", "jenkins"],
+    "wireframing": ["wireframe"],
+    "prototyping": ["prototype"],
+    "user research": ["ux research"],
+    "usability testing": ["user testing"],
+    "requirements": ["requirement"],
+    "dashboards": ["dashboard"],
+    "paid ads": ["google ads", "facebook ads", "meta ads", "ppc"],
+    "a/b testing": ["ab testing", "split testing"],
+    "google analytics": ["ga4"],
+    "financial modeling": ["financial modelling"],
+    "forecasting": ["forecast"],
+    "budgeting": ["budget"],
 }
 
 ACTION_KEYWORDS = ["led", "built", "developed", "designed", "implemented", "improved", "optimized", "achieved"]

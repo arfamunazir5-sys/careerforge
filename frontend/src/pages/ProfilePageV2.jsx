@@ -7,8 +7,11 @@ import "./PagesV2.css";
 import { ROLE_OPTIONS } from "../roles";
 import { rolesApi } from "../api/roles";
 import { resumeApi } from "../api/resume";
+import { evidenceApi } from "../api/evidence";
+import PortfolioEvidenceForm from "../components/PortfolioEvidenceForm";
 
 const GITHUB_RE = /^(?=.{1,39}$)[A-Za-z0-9]+(-[A-Za-z0-9]+)*$/;
+const EMPTY_EVIDENCE = { links: "", caseStudies: "0", hasResults: false, hasProcess: false, recentWork: false };
 
 function looksLikeSleepingServer(message) {
   const m = String(message || "").toLowerCase();
@@ -23,6 +26,7 @@ function ProfilePageV2({ onProfileComplete }) {
   const [resumeText, setResumeText] = useState("");
   const [pdfStatus, setPdfStatus] = useState(null);
   const [githubUsername, setGithubUsername] = useState("");
+  const [evidence, setEvidence] = useState(EMPTY_EVIDENCE);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
   const [prefilled, setPrefilled] = useState(false);
@@ -52,6 +56,16 @@ function ProfilePageV2({ onProfileComplete }) {
           setTargetRole(s.target_role);
         }
         setAvailableHours(s.available_hours);
+        if (s.portfolio_details && s.portfolio_details.mode === "evidence") {
+          const d = s.portfolio_details;
+          setEvidence({
+            links: (d.links || []).map((l) => l.url).join("\n"),
+            caseStudies: String(d.case_studies ?? 0),
+            hasResults: Boolean(d.has_results),
+            hasProcess: Boolean(d.has_process),
+            recentWork: Boolean(d.recent_work),
+          });
+        }
         setPrefilled(true);
       })
       .catch(() => {});
@@ -59,14 +73,28 @@ function ProfilePageV2({ onProfileComplete }) {
 
   const working = status === "working";
 
+  const currentRole = roleOptions.find((r) => r.value === targetRole);
+  const portfolioMode = (currentRole && currentRole.portfolio_mode) || "github";
+
   const hoursNum = Number(availableHours);
+  const evidenceLinks = evidence.links.split("\n").map((l) => l.trim()).filter(Boolean);
+  const casesNum = Number(evidence.caseStudies);
+  const evidenceProvided =
+    evidenceLinks.length > 0 || casesNum > 0 || evidence.hasResults || evidence.hasProcess || evidence.recentWork;
+
   const errors = {};
   if (availableHours === "" || !Number.isInteger(hoursNum) || hoursNum < 1 || hoursNum > 80) {
     errors.hours = "Enter a whole number of hours between 1 and 80.";
   }
-  if (githubUsername.trim() && !GITHUB_RE.test(githubUsername.trim())) {
+  if (portfolioMode === "github" && githubUsername.trim() && !GITHUB_RE.test(githubUsername.trim())) {
     errors.github =
       "GitHub usernames use letters, numbers and single hyphens, up to 39 characters.";
+  }
+  if (portfolioMode === "evidence") {
+    if (evidenceLinks.length > 5) errors.links = "Add at most 5 links.";
+    if (evidence.caseStudies === "" || !Number.isInteger(casesNum) || casesNum < 0 || casesNum > 20) {
+      errors.cases = "Enter a whole number between 0 and 20.";
+    }
   }
   const hasErrors = Object.keys(errors).length > 0;
   const showError = (field) => (touched[field] || submitAttempted) && errors[field];
@@ -99,9 +127,13 @@ function ProfilePageV2({ onProfileComplete }) {
     setSubmitAttempted(true);
     if (hasErrors) return;
 
+    const useGithub = portfolioMode === "github" && githubUsername.trim();
+    const useEvidence = portfolioMode === "evidence" && evidenceProvided;
+
     const planned = ["Saving your target role and available hours"];
     if (resumeText.trim()) planned.push("Analyzing your resume");
-    if (githubUsername.trim()) planned.push("Scanning your GitHub portfolio");
+    if (useGithub) planned.push("Scanning your GitHub portfolio");
+    if (useEvidence) planned.push("Checking your portfolio evidence");
     planned.push("Generating your first weekly plan");
     setSteps(planned);
     setStepIdx(0);
@@ -128,12 +160,30 @@ function ProfilePageV2({ onProfileComplete }) {
         i += 1;
       }
 
-      if (githubUsername.trim()) {
+      if (useGithub) {
         setStepIdx(i);
         try {
           await api.analyzePortfolio({ github_username: githubUsername.trim() });
         } catch (err) {
           collected.push(`GitHub scan was skipped: ${err.message}`);
+          failed.push(i);
+          setFailedSteps([...failed]);
+        }
+        i += 1;
+      }
+
+      if (useEvidence) {
+        setStepIdx(i);
+        try {
+          await evidenceApi.submit({
+            links: evidenceLinks,
+            case_studies: casesNum,
+            has_results: evidence.hasResults,
+            has_process: evidence.hasProcess,
+            recent_work: evidence.recentWork,
+          });
+        } catch (err) {
+          collected.push(`Portfolio evidence was skipped: ${err.message}`);
           failed.push(i);
           setFailedSteps([...failed]);
         }
@@ -239,25 +289,34 @@ function ProfilePageV2({ onProfileComplete }) {
               <span className="pf-help">{resumeText.length} characters. An uploaded PDF is read in memory and not stored.</span>
             </div>
 
-            <div className="pf-field">
-              <label className="pf-label" htmlFor="pf-github">
-                GitHub username <span className="pf-optional">(optional)</span>
-              </label>
-              <input
-                id="pf-github"
-                type="text"
-                className={`pf-input ${showError("github") ? "invalid" : ""}`}
-                value={githubUsername}
-                onChange={(e) => setGithubUsername(e.target.value)}
-                onBlur={() => touch("github")}
-                placeholder="octocat"
+            {portfolioMode === "github" ? (
+              <div className="pf-field">
+                <label className="pf-label" htmlFor="pf-github">
+                  GitHub username <span className="pf-optional">(optional)</span>
+                </label>
+                <input
+                  id="pf-github"
+                  type="text"
+                  className={`pf-input ${showError("github") ? "invalid" : ""}`}
+                  value={githubUsername}
+                  onChange={(e) => setGithubUsername(e.target.value)}
+                  onBlur={() => touch("github")}
+                  placeholder="octocat"
+                />
+                {showError("github") ? (
+                  <span className="pf-error">{errors.github}</span>
+                ) : (
+                  <span className="pf-help">Used to scan your public repositories.</span>
+                )}
+              </div>
+            ) : (
+              <PortfolioEvidenceForm
+                value={evidence}
+                onChange={setEvidence}
+                linksError={showError("links")}
+                casesError={showError("cases")}
               />
-              {showError("github") ? (
-                <span className="pf-error">{errors.github}</span>
-              ) : (
-                <span className="pf-help">Used to scan your public repositories.</span>
-              )}
-            </div>
+            )}
 
             <button type="submit" className="btn-primary pf-submit" disabled={working}>
               {working ? "Working..." : "Analyze Me & Build My Plan"}

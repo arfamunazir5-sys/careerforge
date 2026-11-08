@@ -62,6 +62,9 @@ INTERVIEW_BANK = {
 from app.analysis.quiz_banks_tech import EXTRA_BANKS  # noqa: E402
 
 INTERVIEW_BANK.update(EXTRA_BANKS)
+from app.analysis.quiz_banks_nontech import NONTECH_BANKS  # noqa: E402
+
+INTERVIEW_BANK.update(NONTECH_BANKS)
 
 # For networking, the points for an answer equal its option index (0 to 3).
 NETWORKING_QUESTIONS = [

@@ -64,6 +64,10 @@ need = clamp((70 - score) / 70, 0.05, 1.0)
 | AI/ML Engineer | 0.40 | 0.30 | 0.10 | 0.20 |
 | Cloud / DevOps Engineer | 0.40 | 0.25 | 0.15 | 0.20 |
 | Cybersecurity Analyst | 0.40 | 0.20 | 0.20 | 0.20 |
+| UI/UX Designer | 0.35 | 0.35 | 0.15 | 0.15 |
+| Business Analyst | 0.40 | 0.15 | 0.20 | 0.25 |
+| Digital Marketing Specialist | 0.35 | 0.30 | 0.20 | 0.15 |
+| Finance Analyst | 0.45 | 0.10 | 0.20 | 0.25 |
 
 **Progress feedback.** Completing a Networking, Portfolio or Interview task adds 3 points to that score (capped at 100). Every 3 completed Skill Building tasks advance the skill roadmap to the next prerequisite-aware skill. Resume score only changes through a real resume analysis.
 
@@ -194,7 +198,7 @@ A 3-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 - State is stored in JSON files for a single user; there is no authentication or database.
 - The free hosting tier resets file storage and sleeps when idle.
 - Resumes can be pasted or uploaded as a text-based PDF (scanned or image-only PDFs are not read); GitHub scanning uses the public API and can be rate limited.
-- Six technology roles are supported. Non-technical roles need a different portfolio-evidence model than GitHub.
+- Ten roles are supported: six technology roles scored from a GitHub scan and four non-technical roles (design, business analysis, marketing, finance) scored from self-reported portfolio evidence (links are checked for format, never opened).
 
 ## Future work
 

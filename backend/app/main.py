@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +16,8 @@ from app.analysis.self_assessment import (
     score_networking,
 )
 from app.analysis.skill_graph import get_next_skill, get_full_chain
-from app.roles import role_options
+from app.roles import role_options, portfolio_mode, NEUTRAL_PORTFOLIO_SCORE
+from app.analysis.portfolio_evidence import score_portfolio_evidence, EvidenceError
 from app.insights.role_simulator import simulate_all_roles
 from app.insights.weekly import summarize_week, close_week
 from app.agents.learning import summarize_learning
@@ -35,6 +36,14 @@ from app.insights.adaptation import snapshot_update, compute_adaptation
 class ProfileUpdateRequest(BaseModel):
     target_role: str
     available_hours: int
+
+
+class EvidenceRequest(BaseModel):
+    links: List[str] = []
+    case_studies: int = 0
+    has_results: bool = False
+    has_process: bool = False
+    recent_work: bool = False
 
 
 class NextWeekRequest(BaseModel):
@@ -232,6 +241,11 @@ def update_profile(payload: ProfileUpdateRequest):
         assessment = dict(state.assessment or {})
         assessment.pop("interview", None)
         updates["assessment"] = assessment
+        if portfolio_mode(payload.target_role) != portfolio_mode(state.target_role):
+            # a GitHub score and an evidence score are not comparable
+            updates["portfolio_details"] = {}
+            updates["portfolio_notes"] = ""
+            updates["portfolio_score"] = NEUTRAL_PORTFOLIO_SCORE
     update_state_fields(updates)
     return get_current_state()
 
@@ -366,8 +380,38 @@ async def extract_resume_text(file: UploadFile = File(...)):
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
+@app.post("/portfolio-evidence")
+def submit_portfolio_evidence(payload: EvidenceRequest):
+    """For roles without a GitHub portfolio: scores links and a short checklist (self-reported)."""
+    state = get_current_state()
+    if portfolio_mode(state.target_role) != "evidence":
+        raise HTTPException(status_code=422, detail="This role uses a GitHub scan. Use the GitHub username instead.")
+    try:
+        result = score_portfolio_evidence(
+            payload.links, payload.case_studies, payload.has_results, payload.has_process, payload.recent_work
+        )
+    except EvidenceError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    update_state_fields({
+        "portfolio_score": result["score"],
+        "portfolio_notes": "; ".join(result["notes"]),
+        "portfolio_details": {
+            "mode": "evidence",
+            "links": result["links"],
+            "case_studies": result["case_studies"],
+            "has_results": result["has_results"],
+            "has_process": result["has_process"],
+            "recent_work": result["recent_work"],
+            "notes": result["notes"],
+        },
+    })
+    return result
+
+
 @app.post("/analyze-portfolio")
 def analyze_portfolio_endpoint(payload: PortfolioScanRequest):
+    if portfolio_mode(get_current_state().target_role) == "evidence":
+        raise HTTPException(status_code=422, detail="This role uses portfolio evidence instead of a GitHub scan.")
     try:
         result = scan_portfolio(payload.github_username)
     except PortfolioScanError as e:

@@ -21,12 +21,14 @@ function AnalysisCard({ refreshKey }) {
     state.portfolio_details && state.portfolio_details.repo_count !== undefined
       ? state.portfolio_details
       : null;
+  const evidence =
+    state.portfolio_details && state.portfolio_details.mode === "evidence" ? state.portfolio_details : null;
 
-  if (!resume && !repo) {
+  if (!resume && !repo && !evidence) {
     return (
-      <Card title="Profile analysis" subtitle="What CareerForge found in your resume and GitHub">
+      <Card title="Profile analysis" subtitle="What CareerForge found in your resume and portfolio">
         <p className="p2-text">
-          No resume or GitHub analysis yet. <Link to="/profile">Add them on the Profile page</Link>{" "}
+          No resume or portfolio analysis yet. <Link to="/profile">Add them on the Profile page</Link>{" "}
           to see your missing skills and portfolio findings here.
         </p>
       </Card>
@@ -38,7 +40,7 @@ function AnalysisCard({ refreshKey }) {
   return (
     <Card
       title="Profile analysis"
-      subtitle="What CareerForge found in the resume and GitHub profile you provided"
+      subtitle="What CareerForge found in the resume and portfolio you provided"
     >
       {resume && (
         <div className="p2-block">
@@ -94,6 +96,32 @@ function AnalysisCard({ refreshKey }) {
           {repo.notes && repo.notes.length > 0 && (
             <ul className="p2-list">
               {repo.notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {evidence && (
+        <div className="p2-block">
+          <div className="p2-block-head">
+            <strong>Portfolio evidence</strong>
+            <Badge tone="primary">{`Score ${state.portfolio_score}`}</Badge>
+          </div>
+          <p className="p2-text">
+            {`${(evidence.links || []).length} ${(evidence.links || []).length === 1 ? "link" : "links"} listed, ${evidence.case_studies} case ${evidence.case_studies === 1 ? "study" : "studies"}. Self-reported: links are checked for format and platform, not opened.`}
+          </p>
+          {evidence.links && evidence.links.length > 0 && (
+            <div className="p2-chips" style={{ marginTop: 8 }}>
+              {evidence.links.map((l) => (
+                <Badge key={l.url} tone={l.recognized ? "success" : "neutral"}>{l.platform}</Badge>
+              ))}
+            </div>
+          )}
+          {evidence.notes && evidence.notes.length > 0 && (
+            <ul className="p2-list">
+              {evidence.notes.map((n) => (
                 <li key={n}>{n}</li>
               ))}
             </ul>

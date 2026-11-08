@@ -35,6 +35,30 @@ ROLE_WEIGHTS = {
         "networking": 0.20,
         "interview_prep": 0.20,
     },
+    "ux_designer": {
+        "skill_building": 0.35,
+        "portfolio": 0.35,
+        "networking": 0.15,
+        "interview_prep": 0.15,
+    },
+    "business_analyst": {
+        "skill_building": 0.40,
+        "portfolio": 0.15,
+        "networking": 0.20,
+        "interview_prep": 0.25,
+    },
+    "digital_marketer": {
+        "skill_building": 0.35,
+        "portfolio": 0.30,
+        "networking": 0.20,
+        "interview_prep": 0.15,
+    },
+    "finance_analyst": {
+        "skill_building": 0.45,
+        "portfolio": 0.10,
+        "networking": 0.20,
+        "interview_prep": 0.25,
+    },
 }
 
 DEFAULT_WEIGHTS = {

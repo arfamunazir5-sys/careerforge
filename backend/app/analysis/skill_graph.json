@@ -4,5 +4,9 @@
   "frontend_dev": ["html_css", "javascript", "react", "state_management", "responsive_design", "deployment"],
   "ml_engineer": ["python", "numpy_pandas", "statistics", "ml_fundamentals", "deep_learning", "model_deployment"],
   "cloud_devops": ["linux", "git_ci", "docker", "cloud_basics", "kubernetes", "infrastructure_as_code"],
-  "cybersecurity": ["network_fundamentals", "linux", "security_fundamentals", "web_security", "security_tools", "incident_response"]
+  "cybersecurity": ["network_fundamentals", "linux", "security_fundamentals", "web_security", "security_tools", "incident_response"],
+  "ux_designer": ["design_fundamentals", "user_research", "wireframing", "prototyping_figma", "usability_testing", "design_systems"],
+  "business_analyst": ["excel", "sql_basics", "requirements_gathering", "process_modeling", "data_visualization", "stakeholder_communication"],
+  "digital_marketer": ["marketing_fundamentals", "seo", "content_marketing", "social_media_ads", "web_analytics", "campaign_optimization"],
+  "finance_analyst": ["accounting_basics", "excel_modeling", "financial_statements", "forecasting", "valuation", "reporting_and_dashboards"]
 }
