@@ -4,6 +4,7 @@ from app.agents.schemas import Bid, Allocation
 from app.agents.role_weights import get_weights_for_role
 from app.roles import ROLE_LABELS
 from app.agents.coordinator import compute_shares
+from app.agents.learning import summarize_learning
 from app.insights.schemas import ExplainabilityResult, ExplanationItem
 
 AGENT_LABELS = {
@@ -25,6 +26,7 @@ def generate_explanations(state: StateVector, bids: List[Bid], allocation: Alloc
     bid_by_agent = {b.agent: b for b in bids}
     role_weights = get_weights_for_role(state.target_role)
     shares = compute_shares(state, bids)
+    learning = summarize_learning(state)
     role_label = ROLE_LABELS.get(state.target_role, state.target_role.replace("_", " ").title())
     items = []
 
@@ -54,6 +56,13 @@ def generate_explanations(state: StateVector, bids: List[Bid], allocation: Alloc
                 f"Its bid strength was {bid.bid_score:.2f}, which after role weighting "
                 f"gives it {shares.get(agent, 0)}% of your hours."
             )
+            info = learning.get(agent)
+            if info and abs(info["multiplier"] - 1.0) >= 0.005:
+                direction = "raised" if info["multiplier"] > 1 else "lowered"
+                parts.append(
+                    f"You completed {info['followed']} of its last {info['total']} tasks, "
+                    f"which {direction} its weight to x{info['multiplier']:.2f}."
+                )
 
         items.append(ExplanationItem(agent=agent, hours=hours, explanation=" ".join(parts)))
 

@@ -1,0 +1,6 @@
+.lr-list > * + * { margin-top: var(--cf-space-3); }
+.lr-row { padding: var(--cf-space-3); border: 1px solid var(--cf-border); border-radius: var(--cf-radius-sm); background: var(--cf-surface); }
+.lr-head { display: flex; align-items: center; justify-content: space-between; gap: var(--cf-space-2); flex-wrap: wrap; margin-bottom: var(--cf-space-2); }
+.lr-meta { font-size: var(--cf-text-xs); color: var(--cf-text-muted); }
+.lr-track { height: 8px; background: var(--cf-border); border-radius: var(--cf-radius-pill); overflow: hidden; }
+.lr-fill { height: 100%; border-radius: var(--cf-radius-pill); transition: width 0.4s ease; }

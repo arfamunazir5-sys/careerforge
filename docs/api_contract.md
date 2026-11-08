@@ -70,7 +70,8 @@ Agent keys: `skill_building`, `networking`, `portfolio`, `interview_prep`.
   "resume_details": {},
   "portfolio_details": {},
   "assessment": {},
-  "week_history": []
+  "week_history": [],
+  "agent_outcomes": {}
 }
 ```
 
@@ -208,6 +209,7 @@ Note: this endpoint returns a JSON array containing ONE object (a trailing comma
   "bids": [],
   "allocation": { "week_number": 1, "allocations": [] },
   "allocation_shares": { "skill_building": 38.4, "networking": 19.1, "portfolio": 24.5, "interview_prep": 18.0 },
+  "agent_learning": { "networking": { "multiplier": 0.9, "followed": 0, "total": 1, "rate": 0.33 } },
   "adaptation": {
     "progress": [
       { "module": "Networking", "before": 43, "after": 52, "change": 9 }
@@ -225,6 +227,7 @@ Note: this endpoint returns a JSON array containing ONE object (a trailing comma
 - `overall_score` is role-weighted: each module is multiplied by the target role's agent weight (Resume uses the skill_building weight) and the results are summed.
 - `bids` and `allocation` use the shapes above. `allocation_shares` is each agent's unrounded share of the week in percent (same math as the allocation, before whole-hour rounding).
 - `adaptation.share_shifts` compares the live shares with the shares stored when the current plan was built (changes of 0.1 points or more; empty if the role or hours changed).
+- `agent_learning` is each agent's follow-through: `{ multiplier, followed, total, rate }` from its last 20 completed or ignored tasks (`state.agent_outcomes`, 1 = completed, 0 = ignored). The coordinator computes bid x role weight x `multiplier`. The multiplier is 1.0 until tasks are ignored, never below 0.7, and completing tasks does not boost an agent. A smoothed rate (Beta(1,1) prior) keeps a single outcome from swinging the plan.
 - `adaptation.progress` and `adaptation.reallocation` are empty lists unless something really changed since the previous plan.
 
 ## rewards (GET /rewards)

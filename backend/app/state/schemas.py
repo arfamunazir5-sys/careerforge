@@ -31,3 +31,4 @@ class StateVector(BaseModel):
     portfolio_details: dict = {}
     assessment: dict = {}
     week_history: list = []
+    agent_outcomes: dict = {}

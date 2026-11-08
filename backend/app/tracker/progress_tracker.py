@@ -3,6 +3,7 @@ from app.plan.plan_store import load_plan, save_plan
 from app.state.state_builder import get_current_state, MOCK_STATE_PATH
 from app.tracker.reward import compute_reward
 from app.tracker.reward_log import append_reward
+from app.agents.learning import record_outcome
 from app.analysis.skill_graph import get_next_skill
 
 SCORE_INCREMENT = 3
@@ -61,6 +62,10 @@ def mark_task(task_id: str, new_status: str) -> dict:
         elif new_status == "ignored":
             state_data["ignored_tasks_last_week"] += 1
             state_data["streak_count"] = 0
+
+        state_data["agent_outcomes"] = record_outcome(
+            state_data.get("agent_outcomes", {}), task.agent, new_status == "done"
+        )
 
     with open(MOCK_STATE_PATH, "w") as f:
         json.dump(state_data, f, indent=2)

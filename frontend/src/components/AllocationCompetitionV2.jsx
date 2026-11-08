@@ -83,7 +83,7 @@ function AllocationCompetitionV2({ bids, allocation, opportunity, shares }) {
 
       <p className="v2-legend-key">
         Bid strength (0 to 1) is how strongly an agent argued for time. Share of week is its bid
-        multiplied by your role's weight, divided across all four agents.
+        multiplied by your role's weight and your follow-through weight, divided across all four agents.
       </p>
 
       <div className="v2-rows">

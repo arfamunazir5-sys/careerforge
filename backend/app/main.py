@@ -18,6 +18,7 @@ from app.analysis.skill_graph import get_next_skill, get_full_chain
 from app.roles import role_options
 from app.insights.role_simulator import simulate_all_roles
 from app.insights.weekly import summarize_week, close_week
+from app.agents.learning import summarize_learning
 from app.agents.role_weights import ROLE_WEIGHTS
 from app.agents import skill_agent, networking_agent, portfolio_agent, interview_agent
 from app.agents.coordinator import allocate, compute_shares
@@ -330,6 +331,7 @@ def read_dashboard():
         "allocation": allocation,
         "adaptation": compute_adaptation(state, shares),
         "allocation_shares": shares,
+        "agent_learning": summarize_learning(state),
     },
 
 @app.post("/analyze-resume")

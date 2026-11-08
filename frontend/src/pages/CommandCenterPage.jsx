@@ -6,6 +6,7 @@ import AdaptationPanelV2 from "../components/AdaptationPanelV2";
 import AnalysisCard from "../components/AnalysisCard";
 import AssessmentCard from "../components/AssessmentCard";
 import RoleSimulator from "../components/RoleSimulator";
+import LearningCard from "../components/LearningCard";
 import SampleDataBanner from "../components/SampleDataBanner";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
@@ -39,6 +40,7 @@ function CommandCenterPage({ refreshKey }) {
   const [allocation, setAllocation] = useState(null);
   const [adaptation, setAdaptation] = useState(null);
   const [shares, setShares] = useState(null);
+  const [agentLearning, setAgentLearning] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ function CommandCenterPage({ refreshKey }) {
         setAllocation(data.allocation);
         setAdaptation(data.adaptation);
         setShares(data.allocation_shares);
+        setAgentLearning(data.agent_learning);
       })
       .catch((err) => setError(err.message));
   }, [refreshKey]);
@@ -179,6 +182,8 @@ function CommandCenterPage({ refreshKey }) {
         </Card>
 
         <AdaptationPanelV2 adaptation={adaptation} />
+
+        <LearningCard learning={agentLearning} />
 
         <RoleSimulator refreshKey={refreshKey} />
 

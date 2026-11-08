@@ -54,7 +54,7 @@ need = clamp((70 - score) / 70, 0.05, 1.0)
 | Interview Prep | average of need(interview score) and the self-rated confidence gap |
 | Skill Building | 0.30 x roadmap remaining + 0.10 x need(resume score) + streak momentum (max 0.10) |
 
-**Coordinator.** `combined = bid x role weight`, normalised so shares sum to 1, then converted to whole hours with the largest-remainder method, so the total always equals the available hours.
+**Coordinator.** `combined = bid x role weight x follow-through weight`, normalised so shares sum to 1, then converted to whole hours with the largest-remainder method, so the total always equals the available hours.
 
 | Role | Skill Building | Portfolio | Networking | Interview Prep |
 | --- | --- | --- | --- | --- |
@@ -67,7 +67,7 @@ need = clamp((70 - score) / 70, 0.05, 1.0)
 
 **Progress feedback.** Completing a Networking, Portfolio or Interview task adds 3 points to that score (capped at 100). Every 3 completed Skill Building tasks advance the skill roadmap to the next prerequisite-aware skill. Resume score only changes through a real resume analysis.
 
-The bidding logic is deliberately transparent: every number above is visible in the code and explained to the user in the dashboard. The agents are rule-based: no machine-learning model or LLM is used, and adaptation comes from updating the user's scores and skill roadmap.
+The bidding logic is deliberately transparent: every number above is visible in the code and explained to the user in the dashboard. The agents are rule-based: no machine-learning model or LLM is used, and adaptation comes from updating the user's scores and skill roadmap. Agents whose tasks the user keeps ignoring get a bounded weight penalty (down to 0.7x), so the plan drifts toward what the user actually does while every agent keeps a share.
 
 ## Architecture
 

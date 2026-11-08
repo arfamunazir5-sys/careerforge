@@ -2,17 +2,19 @@ from typing import List
 from app.state.schemas import StateVector
 from app.agents.schemas import Bid, Allocation, AgentAllocation
 from app.agents.role_weights import get_weights_for_role
+from app.agents.learning import agent_multipliers
 
 
 def allocate(state: StateVector, bids: List[Bid]) -> Allocation:
     role_weights = get_weights_for_role(state.target_role)
+    multipliers = agent_multipliers(state)
 
-    # combine each agent's bid strength with how important that
-    # domain is for this specific target role
+    # combine each agent's bid strength with how important that domain is for
+    # this specific target role, and how well the user follows through on its tasks
     combined_scores = {}
     for bid in bids:
         role_weight = role_weights.get(bid.agent, 0.25)
-        combined_scores[bid.agent] = bid.bid_score * role_weight
+        combined_scores[bid.agent] = bid.bid_score * role_weight * multipliers.get(bid.agent, 1.0)
 
     total_score = sum(combined_scores.values())
 
@@ -55,7 +57,11 @@ def compute_shares(state: StateVector, bids: List[Bid]) -> dict:
     Same math as allocate(), before whole-hour rounding, so small changes in
     scores are visible even when the whole-hour split does not move."""
     role_weights = get_weights_for_role(state.target_role)
-    combined = {b.agent: b.bid_score * role_weights.get(b.agent, 0.25) for b in bids}
+    multipliers = agent_multipliers(state)
+    combined = {
+        b.agent: b.bid_score * role_weights.get(b.agent, 0.25) * multipliers.get(b.agent, 1.0)
+        for b in bids
+    }
     total = sum(combined.values())
     if total == 0:
         return {b.agent: round(100 / len(bids), 1) for b in bids}
