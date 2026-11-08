@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -8,6 +8,7 @@ from app.state.state_builder import get_current_state, reset_state, update_state
 from app.analysis.schemas import ResumeAnalysisRequest, PortfolioScanRequest
 from app.analysis.resume_analyzer import analyze_resume
 from app.analysis.portfolio_scanner import scan_portfolio, PortfolioScanError
+from app.analysis.pdf_text import extract_text_from_pdf, PdfExtractionError, MAX_BYTES
 from app.analysis.self_assessment import (
     AssessmentError,
     public_questions,
@@ -353,6 +354,16 @@ def analyze_resume_endpoint(payload: ResumeAnalysisRequest):
         },
     })
     return result
+
+
+@app.post("/extract-resume-text")
+async def extract_resume_text(file: UploadFile = File(...)):
+    """Reads the text from an uploaded PDF resume. The file and text are not stored."""
+    data = await file.read(MAX_BYTES + 1)
+    try:
+        return extract_text_from_pdf(data)
+    except PdfExtractionError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
 @app.post("/analyze-portfolio")

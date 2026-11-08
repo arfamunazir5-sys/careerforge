@@ -6,6 +6,7 @@ import Badge from "../ui/Badge";
 import "./PagesV2.css";
 import { ROLE_OPTIONS } from "../roles";
 import { rolesApi } from "../api/roles";
+import { resumeApi } from "../api/resume";
 
 const GITHUB_RE = /^(?=.{1,39}$)[A-Za-z0-9]+(-[A-Za-z0-9]+)*$/;
 
@@ -20,6 +21,7 @@ function ProfilePageV2({ onProfileComplete }) {
   const [targetRole, setTargetRole] = useState("swe_backend");
   const [availableHours, setAvailableHours] = useState(10);
   const [resumeText, setResumeText] = useState("");
+  const [pdfStatus, setPdfStatus] = useState(null);
   const [githubUsername, setGithubUsername] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -69,6 +71,28 @@ function ProfilePageV2({ onProfileComplete }) {
   const hasErrors = Object.keys(errors).length > 0;
   const showError = (field) => (touched[field] || submitAttempted) && errors[field];
   const touch = (field) => setTouched((t) => ({ ...t, [field]: true }));
+
+  const handleResumeFile = async (e) => {
+    const input = e.target;
+    const file = input.files && input.files[0];
+    if (!file) return;
+    setPdfStatus({ state: "working", message: `Reading ${file.name}...` });
+    try {
+      const result = await resumeApi.extractText(file);
+      setResumeText(result.text);
+      const pages = `${result.pages} page${result.pages === 1 ? "" : "s"}`;
+      setPdfStatus({
+        state: "done",
+        message: `Read ${pages} from ${file.name}. Check the text below before submitting.${
+          result.truncated ? " Only the first part was used." : ""
+        }`,
+      });
+    } catch (err) {
+      setPdfStatus({ state: "error", message: err.message });
+    } finally {
+      input.value = "";
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -192,8 +216,18 @@ function ProfilePageV2({ onProfileComplete }) {
 
             <div className="pf-field">
               <label className="pf-label" htmlFor="pf-resume">
-                Resume <span className="pf-optional">(paste as text, optional)</span>
+                Resume <span className="pf-optional">(upload a text-based PDF or paste the text, optional)</span>
               </label>
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                className="pf-input"
+                aria-label="Upload a PDF resume"
+                onChange={handleResumeFile}
+              />
+              {pdfStatus && (
+                <span className={pdfStatus.state === "error" ? "pf-error" : "pf-help"}>{pdfStatus.message}</span>
+              )}
               <textarea
                 id="pf-resume"
                 rows="8"
@@ -202,7 +236,7 @@ function ProfilePageV2({ onProfileComplete }) {
                 onChange={(e) => setResumeText(e.target.value)}
                 placeholder="Paste your resume text here (optional, but improves accuracy)"
               />
-              <span className="pf-help">{resumeText.length} characters</span>
+              <span className="pf-help">{resumeText.length} characters. An uploaded PDF is read in memory and not stored.</span>
             </div>
 
             <div className="pf-field">

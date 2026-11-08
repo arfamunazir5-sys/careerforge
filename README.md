@@ -135,6 +135,7 @@ GET  /rewards               reward log
 POST /update-profile        set role and hours
 POST /analyze-resume        resume analysis, updates resume score
 POST /analyze-portfolio     GitHub scan, updates portfolio score
+POST /extract-resume-text   read the text of a PDF resume (not stored)
 GET  /skill-graph/{role}    role skill chain
 GET  /skill-progress        completed and next skills
 GET  /dashboard             health, bids, allocation, explanations, adaptation
@@ -192,7 +193,7 @@ A 3-minute walkthrough is in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
 - State is stored in JSON files for a single user; there is no authentication or database.
 - The free hosting tier resets file storage and sleeps when idle.
-- Resumes are pasted as text (no PDF upload); GitHub scanning uses the public API and can be rate limited.
+- Resumes can be pasted or uploaded as a text-based PDF (scanned or image-only PDFs are not read); GitHub scanning uses the public API and can be rate limited.
 - Six technology roles are supported. Non-technical roles need a different portfolio-evidence model than GitHub.
 
 ## Future work

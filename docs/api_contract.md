@@ -16,6 +16,7 @@ Interactive docs: /docs
 | POST | /update-profile | Set role and hours, returns the updated state |
 | POST | /analyze-resume | Analyse resume text, updates resume_score |
 | POST | /analyze-portfolio | Scan GitHub, updates portfolio_score |
+| POST | /extract-resume-text | Read the text of an uploaded PDF resume (multipart field `file`); nothing is stored |
 | GET | /bids | The four agent bids |
 | GET | /allocate | Coordinator allocation |
 | POST | /generate-plan | Build and save the weekly plan, snapshot the allocation |
@@ -140,6 +141,16 @@ Errors: 404 with `detail` if the task id is unknown or the task was already mark
 ## update-profile (POST /update-profile)
 
 Request: `{ "target_role": "frontend_dev", "available_hours": 15 }`. Returns a state_vector. Errors: 422 if `target_role` is not one of the allowed roles or `available_hours` is outside 1-80. Changing the role clears `resume_notes` and `skill_task_progress`.
+
+## extract-resume-text (POST /extract-resume-text)
+
+Multipart upload with one field, `file`, a text-based PDF of at most 2 MB. The first 10 pages are read in memory; the file and the text are never stored. The Profile page puts the returned text into the resume box so the user can check it before analysis.
+
+```json
+{ "text": "Education ...", "pages": 1, "chars": 1840, "truncated": false }
+```
+
+Errors: 422 for an empty file, a file that is not a PDF, a damaged or password-protected PDF, or a PDF with no extractable text (scanned images); 413 above 2 MB. `truncated` is true when pages or characters (20,000) were cut off.
 
 ## resume_analysis (POST /analyze-resume)
 
