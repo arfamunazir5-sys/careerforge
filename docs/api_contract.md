@@ -1,6 +1,6 @@
 # CareerForge API Contract
 
-Last updated for v1.2. All modules talk to each other only through these JSON
+Last updated for v2.0. All modules talk to each other only through these JSON
 shapes. If a field changes, update this file in the same commit.
 
 Base URL (local): http://127.0.0.1:8000 - Base URL (live): https://careerforge-backend-lo7f.onrender.com
@@ -100,7 +100,7 @@ Scores replace `interview_score` and `networking_score`; confidence replaces `co
 { "agent": "networking", "bid_score": 0.39, "requested_hours": 2, "reason": "networking score is low, needs attention" }
 ```
 
-`bid_score` is between 0 and 1. The coordinator only uses `bid_score` and the role weight; `requested_hours` is informational and is not shown to users.
+`bid_score` is between 0 and 1. The coordinator uses `bid_score`, the role weight and the follow-through weight; `requested_hours` is informational and is not shown to users.
 
 ## allocation (GET /allocate)
 
@@ -266,7 +266,7 @@ Returns a downloadable `.ics` file (`text/calendar`, `careerforge_weekly_plan.ic
 
 ```text
 need = clamp((70 - score) / 70, 0.05, 1.0)
-combined = bid_score x role_weight, normalised, converted to whole hours
+combined = bid_score x role_weight x follow-through weight, normalised, converted to whole hours
 (largest-remainder, so the total equals available_hours)
 ```
 
